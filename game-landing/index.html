@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHADOWBLADE — The Last Ronin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #02000a;
+  --red: #c0392b;
+  --red-dark: #7a0000;
+  --red-glow: rgba(192,57,43,0.6);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html.lenis,html.lenis body{height:auto;}
+.lenis.lenis-smooth{scroll-behavior:auto!important;}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain;}
+body{background:var(--bg);color:#fff;font-family:'Rajdhani',sans-serif;cursor:none;overflow-x:hidden;}
+
+/* ===== PRELOADER ===== */
+#preloader{position:fixed;inset:0;z-index:100000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:all;}
+#preloader .pre-logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(50px,10vw,100px);letter-spacing:10px;overflow:hidden;}
+#preloader .pre-logo .pre-char{display:inline-block;transform:translateY(110%);opacity:0;animation:charReveal 0.6s cubic-bezier(.23,1,.32,1) forwards;}
+#preloader .pre-logo .pre-red{color:var(--red);}
+#preloader .pre-sub{font-size:12px;letter-spacing:8px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-top:16px;overflow:hidden;}
+#preloader .pre-sub span{display:inline-block;transform:translateY(110%);}
+#preloader .pre-bar-track{width:180px;height:1px;background:rgba(255,255,255,0.08);margin-top:40px;position:relative;overflow:hidden;}
+#preloader .pre-bar-fill{position:absolute;left:0;top:0;height:100%;width:0;background:var(--red);}
+#preloader .pre-count{font-family:'Bebas Neue',sans-serif;font-size:14px;color:rgba(255,255,255,0.2);margin-top:12px;letter-spacing:4px;}
+body.loaded #preloader{pointer-events:none;}
+@keyframes charReveal{to{transform:translateY(0);opacity:1;}}
+@keyframes subReveal{to{transform:translateY(0);}}
+@keyframes barFill{to{width:100%;}}
+@keyframes slideUp{to{transform:translateY(-100%);}}
+#preloader .pre-logo .pre-char:nth-child(1){animation-delay:0.3s;}
+#preloader .pre-logo .pre-char:nth-child(2){animation-delay:0.34s;}
+#preloader .pre-logo .pre-char:nth-child(3){animation-delay:0.38s;}
+#preloader .pre-logo .pre-char:nth-child(4){animation-delay:0.42s;}
+#preloader .pre-logo .pre-char:nth-child(5){animation-delay:0.46s;}
+#preloader .pre-logo .pre-char:nth-child(6){animation-delay:0.50s;}
+#preloader .pre-logo .pre-char:nth-child(7){animation-delay:0.54s;}
+#preloader .pre-logo .pre-char:nth-child(8){animation-delay:0.58s;}
+#preloader .pre-logo .pre-char:nth-child(9){animation-delay:0.62s;}
+#preloader .pre-logo .pre-char:nth-child(10){animation-delay:0.66s;}
+#preloader .pre-logo .pre-char:nth-child(11){animation-delay:0.70s;}
+#preloader .pre-sub span{animation:subReveal 0.5s cubic-bezier(.23,1,.32,1) 0.8s forwards;}
+#preloader .pre-bar-fill{animation:barFill 1.8s cubic-bezier(.45,.05,.55,.95) 0.9s forwards;}
+#preloader.slide-up{animation:slideUp 0.9s cubic-bezier(.77,0,.18,1) forwards;}
+
+/* Scroll progress bar */
+#scroll-progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--red-dark),var(--red),#e74c3c);z-index:10000;transform-origin:left;transform:scaleX(0);width:100%;will-change:transform;}
+
+/* Custom cursor */
+#cursor-ring{position:fixed;width:14px;height:14px;border:1.5px solid var(--red);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:difference;transition:width 0.25s cubic-bezier(.23,1,.32,1),height 0.25s cubic-bezier(.23,1,.32,1),border-color 0.25s;}
+#cursor-dot{position:fixed;width:4px;height:4px;background:var(--red);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);}
+
+/* Three.js canvas */
+#three-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+
+/* Scanlines */
+#scanlines{position:fixed;top:0;left:0;width:100%;height:100%;z-index:9998;pointer-events:none;opacity:0.02;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.8) 2px,rgba(0,0,0,0.8) 3px);}
+
+/* Side text */
+.side-text{position:fixed;top:50%;font-size:9px;letter-spacing:5px;color:rgba(255,255,255,0.07);text-transform:uppercase;writing-mode:vertical-rl;z-index:10;pointer-events:none;font-family:'Rajdhani',sans-serif;}
+.side-text-left{left:24px;transform:translateY(-50%);}
+.side-text-right{right:24px;transform:translateY(-50%) rotate(180deg);}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:20px 48px;transition:transform 0.7s cubic-bezier(.23,1,.32,1),background 0.4s ease,backdrop-filter 0.4s ease,border-bottom 0.4s ease;transform:translateY(-80px);will-change:transform;}
+nav.scrolled{background:rgba(2,0,10,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(192,57,43,0.1);}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:5px;}
+.logo span{color:var(--red);text-shadow:0 0 20px var(--red-glow);}
+.nav-links{display:flex;gap:36px;}
+.nav-links a{color:rgba(255,255,255,0.4);text-decoration:none;font-size:12px;letter-spacing:3px;text-transform:uppercase;transition:color 0.3s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--red);transition:width 0.3s;}
+.nav-links a:hover{color:rgba(255,255,255,0.9);}
+.nav-links a:hover::after{width:100%;}
+.nav-cta{border:1px solid rgba(139,26,26,0.8);color:#fff;padding:10px 28px;font-family:'Rajdhani',sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;background:rgba(139,26,26,0.15);clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));transition:all 0.3s;}
+.nav-cta:hover{background:rgba(192,57,43,0.35);border-color:var(--red);}
+
+/* Section divider */
+.section-divider{width:100%;height:1px;background:linear-gradient(to right,transparent,rgba(192,57,43,0.3),transparent);}
+
+/* ===== HERO ===== */
+#hero{position:relative;width:100%;height:400vh;}
+.hero-sticky{position:sticky;top:0;height:100vh;width:100%;overflow:hidden;}
+/* Portrait video — centered, dissolves into bg via mask */
+.hero-vid-wrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:2;pointer-events:none;}
+#hero-video{
+  height:100%;width:auto;opacity:0;
+  transition: filter 55ms ease;
+  -webkit-mask-image:radial-gradient(ellipse 62% 74% at 50% 50%, black 15%, rgba(0,0,0,0.55) 58%, transparent 84%);
+  mask-image:radial-gradient(ellipse 62% 74% at 50% 50%, black 15%, rgba(0,0,0,0.55) 58%, transparent 84%);
+}
+/* Scroll text panels */
+.hvp{position:absolute;z-index:10;pointer-events:none;opacity:0;max-width:420px;will-change:opacity,transform;}
+.hvp.tl{top:22%;left:5%;}
+.hvp.tr{top:22%;right:5%;text-align:right;}
+.hvp.bl{bottom:22%;left:5%;}
+.hvp.br{bottom:22%;right:5%;text-align:right;}
+.hvp .vp-label{font-size:10px;letter-spacing:6px;text-transform:uppercase;color:var(--red);display:block;margin-bottom:10px;}
+.hvp .vp-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,4vw,52px);letter-spacing:3px;line-height:1;color:#fff;text-shadow:0 0 40px rgba(0,0,0,0.9);}
+.hvp .vp-desc{font-size:13px;color:rgba(255,255,255,0.5);letter-spacing:0.5px;line-height:1.75;margin-top:12px;}
+.hvp .vp-line{width:36px;height:2px;background:var(--red);margin:14px 0;display:block;}
+.hvp.tr .vp-line,.hvp.br .vp-line{margin-left:auto;}
+/* Video progress bar */
+#hvid-progress{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);width:140px;height:1px;background:rgba(255,255,255,0.1);z-index:10;pointer-events:none;}
+#hvid-progress-fill{height:100%;width:0%;background:var(--red);}
+@media(max-width:600px){#hero-video{width:100%;height:auto;} .hvp{max-width:220px;} .hvp .vp-title{font-size:26px;}}
+.hero-ghost-title{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1;pointer-events:none;text-align:center;will-change:transform;}
+.hero-ghost-title span{font-family:'Bebas Neue',sans-serif;font-size:clamp(120px,20vw,320px);line-height:0.85;color:transparent;-webkit-text-stroke:1.5px rgba(192,57,43,0.55);text-stroke:1.5px rgba(192,57,43,0.55);display:block;letter-spacing:4px;user-select:none;opacity:0;transform:translateY(30px);transition:opacity 0.8s cubic-bezier(.23,1,.32,1),transform 0.8s cubic-bezier(.23,1,.32,1);}
+.hero-character-wrap{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:90vh;z-index:3;will-change:transform;pointer-events:none;overflow:hidden;}
+.hero-character-wrap .clip-reveal{clip-path:inset(100% 0 0 0);transition:clip-path 1.2s cubic-bezier(.77,0,.18,1);}
+.hero-character{height:100%;filter:drop-shadow(0 0 60px rgba(180,15,15,0.55)) drop-shadow(0 20px 80px rgba(0,0,0,0.8));will-change:transform;}
+.hero-content-left{position:absolute;bottom:60px;left:48px;z-index:5;max-width:480px;}
+.hero-tagline{font-size:11px;letter-spacing:8px;color:rgba(255,255,255,0.3);text-transform:uppercase;display:flex;align-items:center;gap:14px;margin-bottom:16px;overflow:hidden;}
+.hero-tagline .tag-inner{display:inline-block;transform:translateY(110%);transition:transform 0.6s cubic-bezier(.23,1,.32,1);}
+.hero-tagline::before,.hero-tagline::after{content:'';width:28px;height:1px;background:rgba(192,57,43,0.5);}
+
+/* Split text lines */
+.split-line{overflow:hidden;display:block;}
+.split-line .line-inner{display:block;transform:translateY(110%);transition:transform 0.7s cubic-bezier(.23,1,.32,1);}
+.split-word{display:inline-block;overflow:hidden;}
+.split-word .word-inner{display:inline-block;transform:translateY(110%);}
+
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,6vw,72px);line-height:0.95;letter-spacing:3px;margin-bottom:10px;}
+.hero-title .red{color:var(--red);text-shadow:0 0 30px var(--red-glow);}
+.hero-subtitle{font-size:14px;color:rgba(255,255,255,0.4);letter-spacing:3px;text-transform:uppercase;margin-bottom:32px;overflow:hidden;}
+.hero-subtitle .line-inner{display:block;transform:translateY(110%);transition:transform 0.6s cubic-bezier(.23,1,.32,1);}
+.hero-cta-group{display:flex;gap:14px;}
+.hero-cta-group .magnetic-wrap{opacity:0;transform:translateY(20px);transition:opacity 0.5s cubic-bezier(.23,1,.32,1),transform 0.5s cubic-bezier(.23,1,.32,1);}
+
+/* Magnetic button */
+.magnetic-wrap{display:inline-block;position:relative;}
+.btn-main{background:linear-gradient(135deg,var(--red-dark),var(--red));color:#fff;border:none;padding:16px 44px;font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:4px;text-transform:uppercase;cursor:pointer;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));transition:background 0.3s,box-shadow 0.3s;font-weight:700;will-change:transform;}
+.btn-main:hover{background:linear-gradient(135deg,#a00000,#e74c3c);box-shadow:0 10px 40px rgba(192,57,43,0.4);}
+.btn-ghost{background:transparent;color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.15);padding:16px 44px;font-family:'Rajdhani',sans-serif;font-size:13px;letter-spacing:4px;text-transform:uppercase;cursor:pointer;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));transition:border-color 0.3s,color 0.3s;font-weight:700;will-change:transform;}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.4);color:#fff;}
+
+.hero-content-right{position:absolute;bottom:60px;right:48px;z-index:5;text-align:right;opacity:0;transform:translateX(30px);transition:opacity 0.6s cubic-bezier(.23,1,.32,1),transform 0.6s cubic-bezier(.23,1,.32,1);will-change:transform,opacity;}
+.hero-stats{display:flex;gap:48px;margin-bottom:20px;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:42px;color:#fff;line-height:1;text-shadow:0 0 30px var(--red-glow);}
+.stat-label{font-size:10px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-top:4px;}
+.hero-socials{display:flex;gap:10px;justify-content:flex-end;}
+.soc{width:34px;height:34px;border:1px solid rgba(255,255,255,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:rgba(255,255,255,0.4);cursor:pointer;transition:all 0.3s;}
+.soc:hover{border-color:rgba(192,57,43,0.7);color:#fff;background:rgba(192,57,43,0.12);}
+
+/* Scroll indicator */
+.scroll-indicator{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;transition:opacity 0.5s;}
+.scroll-indicator.visible{opacity:0.4;}
+.scroll-indicator.hidden{opacity:0;pointer-events:none;}
+.scroll-indicator span{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.5);}
+.scroll-line-v{width:1px;height:30px;background:linear-gradient(to bottom,var(--red),transparent);animation:scrollBounce 2s ease-in-out infinite;}
+@keyframes scrollBounce{0%,100%{transform:translateY(0);opacity:0.6;}50%{transform:translateY(8px);opacity:1;}}
+
+/* ===== MARQUEE ===== */
+.marquee-strip{position:relative;z-index:5;overflow:hidden;padding:20px 0;border-top:1px solid rgba(192,57,43,0.1);border-bottom:1px solid rgba(192,57,43,0.1);background:rgba(2,0,10,0.95);}
+.marquee-track{display:flex;width:max-content;will-change:transform;}
+.marquee-track span{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:6px;color:rgba(255,255,255,0.35);text-transform:uppercase;white-space:nowrap;padding:0 40px;}
+.marquee-track span.red-m{color:rgba(192,57,43,0.7);}
+
+/* ===== FEATURES (Horizontal scroll) ===== */
+#features{position:relative;z-index:5;background:linear-gradient(180deg,transparent 0%,rgba(2,0,10,0.95) 4%,rgba(2,0,10,0.98) 50%,rgba(2,0,10,0.95) 96%,transparent 100%);}
+.features-header{padding:80px 48px 40px;max-width:1200px;margin:0 auto;}
+.section-header h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,5vw,64px);letter-spacing:4px;line-height:1;}
+.section-header h2 .red{color:var(--red);text-shadow:0 0 30px var(--red-glow);}
+.section-header p{font-size:13px;letter-spacing:3px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-top:8px;}
+/* Velocity skew on section headers */
+.velocity-skew{will-change:transform;display:inline-block;}
+
+.horiz-scroll-wrap{overflow-x:auto;overflow-y:hidden;cursor:grab;scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch;}
+.horiz-scroll-wrap::-webkit-scrollbar{display:none;}
+.horiz-scroll-wrap.is-dragging{cursor:grabbing;user-select:none;}
+.horiz-scroll-track{display:flex;gap:20px;padding:36px 48px 56px;width:max-content;}
+.feature-card{position:relative;width:360px;height:480px;flex-shrink:0;background:rgba(6,2,14,0.96);border:1px solid rgba(255,255,255,0.05);border-left:2px solid rgba(192,57,43,0.12);padding:44px 38px;overflow:hidden;transition:border-left-color 0.4s,transform 0.4s cubic-bezier(.23,1,.32,1),box-shadow 0.4s;}
+.feature-card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 85% 10%,rgba(192,57,43,0.08) 0%,transparent 55%);pointer-events:none;}
+.feature-card::after{content:'';position:absolute;left:0;top:0;width:2px;height:0;background:linear-gradient(to bottom,var(--red),var(--red-dark));transition:height 0.5s cubic-bezier(.23,1,.32,1);}
+.feature-card:hover{border-left-color:var(--red);transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 30px rgba(192,57,43,0.06);}
+.feature-card:hover::after{height:100%;}
+.feature-num{font-family:'Bebas Neue',sans-serif;font-size:190px;line-height:1;color:rgba(255,255,255,0.13);position:absolute;right:-10px;top:-18px;user-select:none;pointer-events:none;z-index:0;}
+.feature-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff;position:relative;z-index:1;margin-top:100px;margin-bottom:16px;}
+.feature-desc{font-size:13px;color:rgba(255,255,255,0.42);line-height:1.8;letter-spacing:0.4px;position:relative;z-index:1;}
+.feat-nav-container{position:relative;}
+.feat-nav-btn{display:none;position:absolute;top:50%;transform:translateY(-50%);z-index:20;width:36px;height:80px;background:rgba(2,0,10,0.82);border:1px solid rgba(192,57,43,0.45);color:var(--red);font-size:28px;align-items:center;justify-content:center;cursor:pointer;transition:background 0.2s,border-color 0.2s;-webkit-tap-highlight-color:transparent;line-height:1;padding:0;}
+.feat-nav-prev{left:0;border-left:none;border-radius:0 4px 4px 0;}
+.feat-nav-next{right:0;border-right:none;border-radius:4px 0 0 4px;}
+.feat-nav-btn:active{background:rgba(192,57,43,0.22);border-color:var(--red);}
+@media(max-width:900px){.feat-nav-btn{display:flex;}}
+
+/* ===== STORY ===== */
+#story{position:relative;z-index:5;padding:120px 48px;background:linear-gradient(180deg,transparent 0%,rgba(2,0,10,0.97) 8%,rgba(2,0,10,0.97) 92%,transparent 100%);}
+.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;max-width:1200px;margin:0 auto;align-items:center;}
+.story-image-wrap{position:relative;display:flex;align-items:center;justify-content:center;height:600px;}
+.story-ring{position:absolute;border-radius:50%;border:1px solid rgba(192,57,43,0.15);animation:pulseRing 4s ease-in-out infinite;}
+.story-ring-1{width:420px;height:420px;}
+.story-ring-2{width:520px;height:520px;animation-delay:1s;}
+@keyframes pulseRing{0%,100%{transform:scale(1);opacity:0.4;}50%{transform:scale(1.05);opacity:0.8;}}
+.story-img-clip{overflow:hidden;position:relative;z-index:2;height:500px;}
+.story-img-clip img{height:100%;filter:drop-shadow(0 0 40px rgba(180,15,15,0.4));transform:scale(1.2);will-change:transform;}
+.story-text h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4vw,52px);letter-spacing:3px;line-height:1.1;margin-bottom:24px;}
+.story-text h2 .red{color:var(--red);text-shadow:0 0 25px var(--red-glow);}
+.story-text p{font-size:15px;color:rgba(255,255,255,0.5);line-height:1.8;margin-bottom:16px;letter-spacing:0.3px;}
+.story-buttons{display:flex;gap:14px;margin-top:32px;}
+
+/* ===== STATS ===== */
+#world-stats{position:relative;z-index:5;padding:120px 48px;background:linear-gradient(180deg,transparent 0%,rgba(2,0,10,0.96) 8%,rgba(2,0,10,0.96) 92%,transparent 100%);}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:40px;max-width:1100px;margin:0 auto;}
+.stat-block{text-align:center;padding:40px 20px;}
+.stat-block .big-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,7vw,80px);color:#fff;text-shadow:0 0 40px var(--red-glow);line-height:1;}
+.stat-block .stat-title{font-size:12px;letter-spacing:4px;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-top:8px;margin-bottom:16px;}
+.stat-bar{width:100%;height:3px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;}
+.stat-bar-fill{height:100%;background:linear-gradient(90deg,var(--red-dark),var(--red));width:0;border-radius:2px;transition:width 1.2s ease-out;}
+
+/* ===== CTA ===== */
+#final-cta{position:relative;z-index:5;padding:160px 48px;text-align:center;background:linear-gradient(180deg,transparent 0%,rgba(2,0,10,0.97) 10%,rgba(2,0,10,0.97) 90%,transparent 100%);}
+.cta-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(192,57,43,0.15) 0%,transparent 70%);pointer-events:none;z-index:0;}
+.cta-big-text{font-family:'Bebas Neue',sans-serif;font-size:clamp(60px,10vw,130px);line-height:0.95;letter-spacing:6px;position:relative;z-index:1;background:linear-gradient(180deg,#fff 30%,rgba(255,255,255,0.4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.cta-subtitle{font-size:14px;letter-spacing:5px;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-top:28px;position:relative;z-index:1;}
+.cta-buttons{display:flex;gap:14px;justify-content:center;margin-top:40px;position:relative;z-index:1;}
+
+/* ===== FOOTER ===== */
+footer{position:relative;z-index:5;padding:28px 48px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(192,57,43,0.15);background:rgba(2,0,10,0.98);}
+footer .copy{font-size:11px;color:rgba(255,255,255,0.2);letter-spacing:2px;}
+footer .foot-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:4px;color:rgba(255,255,255,0.15);}
+footer .foot-title span{color:rgba(192,57,43,0.4);}
+footer .foot-socials{display:flex;gap:8px;}
+
+/* Responsive */
+@media(max-width:900px){
+  .story-grid{grid-template-columns:1fr;gap:40px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .hero-content-right{display:none;}
+  nav{padding:16px 24px;}
+  .nav-links{display:none;}
+  #story,#world-stats,#final-cta{padding:80px 24px;}
+  .hero-content-left{left:24px;right:24px;}
+  .features-header{padding:80px 24px 40px;}
+}
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  /* Full character visible on mobile */
+  .hero-character-wrap{height:100vh;opacity:0.85;}
+  /* Bottom gradient so text stays readable over the character */
+  .hero-sticky::after{content:'';position:absolute;bottom:0;left:0;right:0;height:55%;background:linear-gradient(to top,rgba(2,0,10,0.92) 0%,rgba(2,0,10,0.55) 50%,transparent 100%);z-index:4;pointer-events:none;}
+  /* Ghost title — smaller stroke, less dominant */
+  .hero-ghost-title span{font-size:clamp(68px,17vw,110px);-webkit-text-stroke:1px rgba(192,57,43,0.35);text-stroke:1px rgba(192,57,43,0.35);}
+  /* Content anchored low, above the gradient */
+  .hero-content-left{bottom:28px;left:20px;right:20px;z-index:6;}
+  .hero-title{font-size:clamp(42px,10vw,60px);}
+  .hero-cta-group{flex-direction:column;gap:10px;}
+  .hero-cta-group .magnetic-wrap{width:100%;}
+  .btn-main,.btn-ghost{width:100%;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- PRELOADER -->
+<div id="preloader">
+  <div class="pre-logo" id="pre-logo">
+    <span class="pre-char">S</span><span class="pre-char">H</span><span class="pre-char">A</span><span class="pre-char">D</span><span class="pre-char">O</span><span class="pre-char">W</span><span class="pre-char pre-red">B</span><span class="pre-char pre-red">L</span><span class="pre-char pre-red">A</span><span class="pre-char pre-red">D</span><span class="pre-char pre-red">E</span>
+  </div>
+  <div class="pre-sub"><span>The Last Ronin</span></div>
+  <div class="pre-bar-track"><div class="pre-bar-fill" id="pre-bar"></div></div>
+  <div class="pre-count" id="pre-count">0%</div>
+</div>
+
+<div id="scroll-progress"></div>
+<div id="cursor-ring"></div>
+<div id="cursor-dot"></div>
+<canvas id="three-canvas"></canvas>
+<div id="scanlines"></div>
+
+<!-- NAV -->
+<nav id="main-nav">
+  <div class="logo">SHADOW<span>BLADE</span></div>
+  <div class="nav-links">
+    <a href="#features">Story</a>
+    <a href="#story">Combat</a>
+    <a href="#world-stats">World</a>
+    <a href="#final-cta">Media</a>
+  </div>
+  <button class="nav-cta">Pre-Order Now</button>
+</nav>
+
+<!-- HERO (scroll-driven, 450vh) -->
+<section id="hero">
+  <div class="hero-sticky">
+
+    <!-- Portrait video — centered, sides fade to bg -->
+    <div class="hero-vid-wrap">
+      <video id="hero-video" muted playsinline preload="auto" src="cinematic.webm"></video>
+    </div>
+
+    <div class="hero-ghost-title" id="ghost-title">
+      <span>SHADOW</span>
+      <span>BLADE</span>
+    </div>
+    <div class="hero-character-wrap" id="hero-char-wrap">
+      <div class="clip-reveal">
+        <img class="hero-character" id="hero-char" src="hero.png" alt="Shadowblade hero character" onerror="this.parentElement.parentElement.style.display='none'">
+      </div>
+    </div>
+    <div class="hero-content-left" id="hero-content">
+      <div class="hero-tagline"><span class="tag-inner">2026 · Action RPG · Dark Fantasy</span></div>
+      <h1 class="hero-title">
+        <span class="split-line"><span class="line-inner">THE LAST</span></span>
+        <span class="split-line"><span class="line-inner red">RONIN</span></span>
+      </h1>
+      <div class="hero-subtitle"><span class="line-inner">Walks in darkness · Strikes from shadow</span></div>
+      <div class="hero-cta-group">
+        <span class="magnetic-wrap"><button class="btn-main">&#9654; &nbsp;Watch Trailer</button></span>
+        <span class="magnetic-wrap"><button class="btn-ghost">Add to Wishlist</button></span>
+      </div>
+    </div>
+    <div class="hero-content-right" id="hero-right">
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-num" id="counter-1">0</div><div class="stat-label">Wishlisted</div></div>
+        <div class="stat"><div class="stat-num" id="counter-2">0+</div><div class="stat-label">Hours of Gameplay</div></div>
+        <div class="stat"><div class="stat-num" id="counter-3">0+</div><div class="stat-label">Enemy Types</div></div>
+      </div>
+      <div class="hero-socials">
+        <div class="soc">&#120143;</div>
+        <div class="soc" style="font-size:13px">&#9654;</div>
+        <div class="soc" style="font-size:13px">f</div>
+      </div>
+    </div>
+
+    <!-- Scroll text panels — fade in/out as video scrubs -->
+    <div class="hvp tl" id="hvp-0">
+      <span class="vp-label">Prologue</span>
+      <div class="vp-title">EXILE ENDS.<br>WAR BEGINS.</div>
+      <span class="vp-line"></span>
+      <p class="vp-desc">A disgraced blade returns from shadow. The empire that cast him out will learn — darkness remembers.</p>
+    </div>
+    <div class="hvp tr" id="hvp-1">
+      <span class="vp-label">Combat</span>
+      <div class="vp-title">200+ COMBOS<br>FIVE SCHOOLS</div>
+      <span class="vp-line"></span>
+      <p class="vp-desc">Chain light, heavy and shadow strikes into art. Every duel is a sentence written in steel.</p>
+    </div>
+    <div class="hvp bl" id="hvp-2">
+      <span class="vp-label">The World</span>
+      <div class="vp-title">60 HOURS.<br>8 PROVINCES.</div>
+      <span class="vp-line"></span>
+      <p class="vp-desc">A feudal Japan rebuilt from ash. Dynamic seasons, living clans, and a world that reacts to every choice.</p>
+    </div>
+
+    <!-- Progress bar -->
+    <div id="hvid-progress"><div id="hvid-progress-fill"></div></div>
+
+    <div class="scroll-indicator" id="scroll-ind">
+      <span>Scroll</span>
+      <div class="scroll-line-v"></div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-strip">
+  <div class="marquee-track" id="marquee-1">
+    <span>Blade Mastery</span><span class="red-m">&#x2022;</span>
+    <span>Shadow Realm</span><span class="red-m">&#x2022;</span>
+    <span>Feudal Open World</span><span class="red-m">&#x2022;</span>
+    <span>Consequence System</span><span class="red-m">&#x2022;</span>
+    <span>Adaptive Soundtrack</span><span class="red-m">&#x2022;</span>
+    <span>Honour or Ruin</span><span class="red-m">&#x2022;</span>
+    <span>Blade Mastery</span><span class="red-m">&#x2022;</span>
+    <span>Shadow Realm</span><span class="red-m">&#x2022;</span>
+    <span>Feudal Open World</span><span class="red-m">&#x2022;</span>
+    <span>Consequence System</span><span class="red-m">&#x2022;</span>
+    <span>Adaptive Soundtrack</span><span class="red-m">&#x2022;</span>
+    <span>Honour or Ruin</span><span class="red-m">&#x2022;</span>
+  </div>
+</div>
+
+<!-- FEATURES (Horizontal scroll) -->
+<section id="features">
+  <div class="features-header section-header">
+    <h2 class="velocity-skew" id="features-title">FORGED IN <span class="red">SHADOW</span></h2>
+    <p>Six pillars of a world worth dying for</p>
+  </div>
+  <div class="feat-nav-container">
+  <button class="feat-nav-btn feat-nav-prev" id="feat-prev" aria-label="Previous">&#8249;</button>
+  <div class="horiz-scroll-wrap">
+    <div class="horiz-scroll-track" id="horiz-track">
+      <div class="feature-card">
+        <div class="feature-num">01</div>
+        <div class="feature-title">Blade Mastery</div>
+        <div class="feature-desc">200+ combos across five weapon schools. Chain light, heavy, and shadow strikes into devastating flows.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">02</div>
+        <div class="feature-title">Shadow Realm</div>
+        <div class="feature-desc">Phase between the living and spirit world mid-combat. Different enemies, rules, and rewards await in each.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">03</div>
+        <div class="feature-title">Feudal Open World</div>
+        <div class="feature-desc">60+ hours across 8 hand-crafted provinces. Dynamic weather and a day-night cycle that affects enemy behavior.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">04</div>
+        <div class="feature-title">Consequence System</div>
+        <div class="feature-desc">Every choice permanently reshapes the world. Ally with clans, betray lords, or walk the path alone.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">05</div>
+        <div class="feature-title">Adaptive Soundtrack</div>
+        <div class="feature-desc">An orchestral score by Kurayami Studios that morphs with your combat style, honor level, and time of day.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">06</div>
+        <div class="feature-title">Honour or Ruin</div>
+        <div class="feature-desc">Walk the samurai code or embrace the shadow arts. Your moral axis unlocks unique abilities and story endings.</div>
+      </div>
+    </div>
+  </div>
+  <button class="feat-nav-btn feat-nav-next" id="feat-next" aria-label="Next">&#8250;</button>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- MARQUEE 2 (reverse direction) -->
+<div class="marquee-strip">
+  <div class="marquee-track" id="marquee-2" style="transform:translateX(-50%)">
+    <span>PC</span><span class="red-m">&#x2022;</span>
+    <span>PS5</span><span class="red-m">&#x2022;</span>
+    <span>Xbox Series X</span><span class="red-m">&#x2022;</span>
+    <span>2026</span><span class="red-m">&#x2022;</span>
+    <span>Dark Fantasy</span><span class="red-m">&#x2022;</span>
+    <span>Action RPG</span><span class="red-m">&#x2022;</span>
+    <span>PC</span><span class="red-m">&#x2022;</span>
+    <span>PS5</span><span class="red-m">&#x2022;</span>
+    <span>Xbox Series X</span><span class="red-m">&#x2022;</span>
+    <span>2026</span><span class="red-m">&#x2022;</span>
+    <span>Dark Fantasy</span><span class="red-m">&#x2022;</span>
+    <span>Action RPG</span><span class="red-m">&#x2022;</span>
+  </div>
+</div>
+
+<!-- STORY -->
+<section id="story">
+  <div class="story-grid">
+    <div class="story-image-wrap">
+      <div class="story-ring story-ring-1"></div>
+      <div class="story-ring story-ring-2"></div>
+      <div class="story-img-clip" id="story-clip">
+        <img src="hero.png" alt="Shadowblade character" onerror="this.parentElement.style.display='none'">
+      </div>
+    </div>
+    <div class="story-text" id="story-text">
+      <h2>
+        <span class="split-line"><span class="line-inner">DISHONOURED.</span></span>
+        <span class="split-line"><span class="line-inner red">REBORN.</span></span>
+        <span class="split-line"><span class="line-inner">UNSTOPPABLE.</span></span>
+      </h2>
+      <p>Once the most feared blade in the Emperor's guard, Kaede was betrayed by the shadow council and left for dead in the burning ruins of Ashenvale. But death refused him. Resurrected by an ancient spirit bound to his bloodline, he now walks between two worlds — the living and the shadow realm.</p>
+      <p>Armed with a cursed katana that feeds on the souls of the fallen, Kaede must carve a path through eight feudal provinces to reach the Obsidian Throne and confront the very masters who destroyed everything he swore to protect.</p>
+      <div class="story-buttons">
+        <span class="magnetic-wrap"><button class="btn-main">Read the Lore</button></span>
+        <span class="magnetic-wrap"><button class="btn-ghost">Meet the Characters</button></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- WORLD STATS -->
+<section id="world-stats">
+  <div class="section-header reveal" style="text-align:center;max-width:600px;margin:0 auto 64px;">
+    <h2 class="velocity-skew">THE WORLD <span class="red">AWAITS</span></h2>
+    <p>A living, breathing feudal Japan reimagined in darkness</p>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-block reveal">
+      <div class="big-num">60+</div>
+      <div class="stat-title">Hours of Gameplay</div>
+      <div class="stat-bar"><div class="stat-bar-fill" data-width="85%"></div></div>
+    </div>
+    <div class="stat-block reveal">
+      <div class="big-num">127+</div>
+      <div class="stat-title">Unique Enemy Types</div>
+      <div class="stat-bar"><div class="stat-bar-fill" data-width="72%"></div></div>
+    </div>
+    <div class="stat-block reveal">
+      <div class="big-num">8</div>
+      <div class="stat-title">Feudal Provinces</div>
+      <div class="stat-bar"><div class="stat-bar-fill" data-width="60%"></div></div>
+    </div>
+    <div class="stat-block reveal">
+      <div class="big-num">847K</div>
+      <div class="stat-title">Wishlisted</div>
+      <div class="stat-bar"><div class="stat-bar-fill" data-width="95%"></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- FINAL CTA -->
+<section id="final-cta">
+  <div class="cta-glow"></div>
+  <div class="cta-big-text reveal">CLAIM<br>YOUR<br>DESTINY</div>
+  <div class="cta-subtitle reveal">Available 2026 — PC · PS5 · Xbox Series X</div>
+  <div class="cta-buttons reveal">
+    <span class="magnetic-wrap"><button class="btn-main">Pre-Order Now</button></span>
+    <span class="magnetic-wrap"><button class="btn-ghost">Add to Wishlist</button></span>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="copy">&copy; 2026 Shadowblade Studios. All rights reserved.</div>
+  <div class="foot-title">SHADOW<span>BLADE</span></div>
+  <div class="foot-socials">
+    <div class="soc">&#120143;</div>
+    <div class="soc" style="font-size:13px">&#9654;</div>
+    <div class="soc" style="font-size:13px">f</div>
+  </div>
+</footer>
+
+<!-- CDN Scripts -->
+<script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<script>
+// =========================================================
+// 1. PRELOADER — CSS keyframe animation driven
+// =========================================================
+const preloader = document.getElementById('preloader');
+const preCount = document.getElementById('pre-count');
+const preBar = document.getElementById('pre-bar');
+
+// Counter text updates (synced with CSS bar animation: 1.8s starting at 0.9s)
+const counterStart = 900;
+const counterDuration = 1800;
+const counterEnd = counterStart + counterDuration;
+let counterRaf;
+const t0 = performance.now();
+function updateCounter() {
+  const elapsed = performance.now() - t0;
+  if (elapsed >= counterStart) {
+    const p = Math.min(1, (elapsed - counterStart) / counterDuration);
+    const eased = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    preCount.textContent = Math.round(eased * 100) + '%';
+  }
+  if (elapsed < counterEnd + 100) { counterRaf = requestAnimationFrame(updateCounter); }
+}
+counterRaf = requestAnimationFrame(updateCounter);
+
+// After bar fill completes (~2.7s from load), slide up preloader
+const slideDelay = 2900;
+setTimeout(() => {
+  document.body.classList.add('loaded');
+  preloader.classList.add('slide-up');
+}, slideDelay);
+
+// After slide-up animation (~0.9s), hide preloader and run intro
+setTimeout(() => {
+  preloader.style.display = 'none';
+  introSequence();
+}, slideDelay + 950);
+
+// =========================================================
+// 2. LENIS SMOOTH SCROLL
+// =========================================================
+const lenis = new Lenis({ duration: 1.2, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), orientation: 'vertical', smoothWheel: true });
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add(time => { lenis.raf(time * 1000); });
+gsap.ticker.lagSmoothing(0);
+
+// =========================================================
+// 3. CUSTOM CURSOR (with magnetic buttons)
+// =========================================================
+const cursorRing = document.getElementById('cursor-ring');
+const cursorDot = document.getElementById('cursor-dot');
+let ringX = 0, ringY = 0;
+let mouseX = 0, mouseY = 0;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursorDot.style.left = e.clientX + 'px';
+  cursorDot.style.top = e.clientY + 'px';
+});
+
+function updateCursor() {
+  ringX += (mouseX - ringX) * 0.15;
+  ringY += (mouseY - ringY) * 0.15;
+  cursorRing.style.left = ringX + 'px';
+  cursorRing.style.top = ringY + 'px';
+  requestAnimationFrame(updateCursor);
+}
+updateCursor();
+
+document.querySelectorAll('a, button, .soc, .nav-cta').forEach(el => {
+  el.addEventListener('mouseenter', () => {
+    cursorRing.style.width = '30px';
+    cursorRing.style.height = '30px';
+    cursorRing.style.borderColor = '#fff';
+  });
+  el.addEventListener('mouseleave', () => {
+    cursorRing.style.width = '14px';
+    cursorRing.style.height = '14px';
+    cursorRing.style.borderColor = '#c0392b';
+  });
+});
+
+// Magnetic hover — buttons follow cursor within bounds
+document.querySelectorAll('.magnetic-wrap').forEach(wrap => {
+  const btn = wrap.querySelector('button');
+  wrap.addEventListener('mousemove', e => {
+    const rect = wrap.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) * 0.3;
+    const dy = (e.clientY - cy) * 0.3;
+    gsap.to(btn, { x: dx, y: dy, duration: 0.4, ease: 'power2.out' });
+  });
+  wrap.addEventListener('mouseleave', () => {
+    gsap.to(btn, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1, 0.4)' });
+  });
+});
+
+// =========================================================
+// 4. THREE.JS PARTICLE BACKGROUND
+// =========================================================
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.set(0, 0, 50);
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-canvas'), alpha: true, antialias: false });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const PARTICLE_COUNT = 2200;
+const positions = new Float32Array(PARTICLE_COUNT * 3);
+const colors = new Float32Array(PARTICLE_COUNT * 3);
+const sizes = new Float32Array(PARTICLE_COUNT);
+const velocities = [];
+
+for (let i = 0; i < PARTICLE_COUNT; i++) {
+  positions[i * 3] = (Math.random() - 0.5) * 120;
+  positions[i * 3 + 1] = (Math.random() - 0.5) * 80;
+  positions[i * 3 + 2] = (Math.random() - 0.5) * 60;
+  const ember = Math.random() < 0.2;
+  if (ember) {
+    colors[i * 3] = 0.9 + Math.random() * 0.1;
+    colors[i * 3 + 1] = 0.2 + Math.random() * 0.15;
+    colors[i * 3 + 2] = 0.05;
+    sizes[i] = 2.5 + Math.random() * 2;
+  } else {
+    const grey = 0.4 + Math.random() * 0.3;
+    colors[i * 3] = grey; colors[i * 3 + 1] = grey * 0.95; colors[i * 3 + 2] = grey * 0.9;
+    sizes[i] = 1 + Math.random() * 1.5;
+  }
+  velocities.push({ x: (Math.random() - 0.5) * 0.02, y: 0.01 + Math.random() * (ember ? 0.06 : 0.03), phase: Math.random() * Math.PI * 2 });
+}
+
+const particleGeometry = new THREE.BufferGeometry();
+particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+particleGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+const particleMaterial = new THREE.ShaderMaterial({
+  uniforms: { time: { value: 0 } },
+  vertexShader: `
+    attribute float size; attribute vec3 color;
+    varying vec3 vColor; varying float vAlpha;
+    void main() {
+      vColor = color;
+      vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+      gl_PointSize = size * (80.0 / -mvPosition.z);
+      gl_Position = projectionMatrix * mvPosition;
+      vAlpha = smoothstep(0.0, 0.3, (position.y + 40.0) / 80.0) * smoothstep(1.0, 0.7, (position.y + 40.0) / 80.0);
+    }
+  `,
+  fragmentShader: `
+    varying vec3 vColor; varying float vAlpha;
+    void main() {
+      float d = length(gl_PointCoord - vec2(0.5));
+      if (d > 0.5) discard;
+      float alpha = smoothstep(0.5, 0.1, d) * vAlpha * 0.7;
+      gl_FragColor = vec4(vColor, alpha);
+    }
+  `,
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+});
+scene.add(new THREE.Points(particleGeometry, particleMaterial));
+
+const shards = [];
+for (let i = 0; i < 12; i++) {
+  const geo = new THREE.OctahedronGeometry(0.5 + Math.random() * 1.5, 0);
+  const mat = new THREE.MeshBasicMaterial({
+    color: Math.random() < 0.5 ? new THREE.Color(0.4, 0.02, 0.02) : new THREE.Color(0.05, 0.03, 0.12),
+    wireframe: true, transparent: true, opacity: 0.15 + Math.random() * 0.1
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set((Math.random()-0.5)*100, (Math.random()-0.5)*60, (Math.random()-0.5)*40-10);
+  mesh.userData = { rx: (Math.random()-0.5)*0.005, ry: (Math.random()-0.5)*0.005, rz: (Math.random()-0.5)*0.003, fp: Math.random()*Math.PI*2, fs: 0.002+Math.random()*0.003, fa: 0.3+Math.random()*0.5 };
+  scene.add(mesh); shards.push(mesh);
+}
+
+let camTX = 0, camTY = 0, camX = 0, camY = 0, scrollProg = 0;
+document.addEventListener('mousemove', e => {
+  camTX = (e.clientX / window.innerWidth - 0.5) * 8;
+  camTY = -(e.clientY / window.innerHeight - 0.5) * 5;
+});
+lenis.on('scroll', () => { scrollProg = window.scrollY / (document.body.scrollHeight - window.innerHeight); });
+
+let t3 = 0;
+function animateThree() {
+  t3 += 0.016;
+  particleMaterial.uniforms.time.value = t3;
+  const pos = particleGeometry.attributes.position.array;
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const v = velocities[i];
+    pos[i*3] += v.x + Math.sin(t3 * 0.5 + v.phase) * 0.015;
+    pos[i*3+1] += v.y;
+    if (pos[i*3+1] > 40) { pos[i*3+1] = -40; pos[i*3] = (Math.random()-0.5)*120; }
+  }
+  particleGeometry.attributes.position.needsUpdate = true;
+  shards.forEach(s => { const d = s.userData; s.rotation.x += d.rx; s.rotation.y += d.ry; s.rotation.z += d.rz; s.position.y += Math.sin(t3*d.fs*60+d.fp)*d.fa*0.02; });
+  camX += (camTX - camX) * 0.03; camY += (camTY - camY) * 0.03;
+  camera.position.set(camX, camY, 50 + scrollProg * 15);
+  camera.lookAt(camX * 0.5, camY * 0.5 - scrollProg * 8, 0);
+  renderer.render(scene, camera);
+  requestAnimationFrame(animateThree);
+}
+animateThree();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// =========================================================
+// 5. INTRO SEQUENCE — after preloader
+// =========================================================
+function introSequence() {
+  function reveal(sel, props, delay, stagger) {
+    stagger = stagger || 0;
+    setTimeout(() => {
+      document.querySelectorAll(sel).forEach((el, i) => {
+        setTimeout(() => { Object.assign(el.style, props); }, i * stagger);
+      });
+    }, delay);
+  }
+
+  // Clip-path reveal
+  reveal('.clip-reveal', { clipPath: 'inset(0% 0 0 0)' }, 50);
+
+  // Ghost title
+  reveal('#ghost-title span', { opacity: '1', transform: 'translateY(0)' }, 200, 150);
+
+  // Nav
+  reveal('#main-nav', { transform: 'translateY(0)' }, 600);
+
+  // Tagline
+  reveal('.tag-inner', { transform: 'translateY(0)' }, 500);
+
+  // Title lines
+  reveal('.hero-title .line-inner', { transform: 'translateY(0)' }, 650, 120);
+
+  // Subtitle
+  reveal('.hero-subtitle .line-inner', { transform: 'translateY(0)' }, 900);
+
+  // CTA buttons
+  reveal('.hero-cta-group .magnetic-wrap', { opacity: '1', transform: 'translateY(0)' }, 1100, 100);
+
+  // Right stats
+  reveal('#hero-right', { opacity: '1', transform: 'translateX(0)' }, 1000);
+
+  // Scroll indicator
+  setTimeout(() => document.getElementById('scroll-ind').classList.add('visible'), 1400);
+
+  // Counters
+  setTimeout(() => {
+    animateCounter('counter-1', 847300, '', n => n.toLocaleString());
+    animateCounter('counter-2', 60, '+');
+    animateCounter('counter-3', 127, '+');
+  }, 1200);
+}
+
+// =========================================================
+// 6. GSAP SCROLL ANIMATIONS
+// =========================================================
+gsap.registerPlugin(ScrollTrigger);
+document.fonts.ready.then(() => ScrollTrigger.refresh());
+
+// Scroll progress bar
+gsap.to('#scroll-progress', { scaleX: 1, ease: 'none', scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 0 } });
+
+// Nav scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 80);
+  document.getElementById('scroll-ind').classList.toggle('hidden', window.scrollY > 100);
+});
+
+// Ghost title: no parallax needed (hero is now 100vh, wheel-driven)
+
+// Hero 3D tilt (only before scroll)
+document.addEventListener('mousemove', e => {
+  if (window.scrollY > window.innerHeight * 0.3) return;
+  const rx = ((e.clientY / window.innerHeight) - 0.5) * -6;
+  const ry = ((e.clientX / window.innerWidth) - 0.5) * 6;
+  gsap.to('#hero-char-wrap', { rotateX: rx, rotateY: ry, transformPerspective: 800, duration: 0.6, ease: 'power2.out', overwrite: 'auto' });
+});
+
+// ===== MARQUEE — continuous scroll (velocity-based with Lenis) =====
+let marqueeSpeed = 1;
+lenis.on('scroll', ({ velocity }) => { marqueeSpeed = 1 + Math.abs(velocity) * 0.15; });
+let mPos1 = 0, mPos2 = 0;
+const m1 = document.getElementById('marquee-1');
+const m2 = document.getElementById('marquee-2');
+
+// ===== HORIZONTAL DRAG SCROLL (features cards) =====
+(function(){
+  const wrap = document.querySelector('.horiz-scroll-wrap');
+  const track = document.getElementById('horiz-track');
+  if (!wrap || !track) return;
+
+  const CARD_STEP = 360 + 20; // card width + gap
+  let isDragging = false, startX = 0, scrollStart = 0, velX = 0, lastX = 0, rafId = 0;
+
+  function snapNearest() {
+    const max = track.scrollWidth - wrap.offsetWidth;
+    const idx = Math.round(wrap.scrollLeft / CARD_STEP);
+    const target = Math.min(idx * CARD_STEP, max);
+    const from = wrap.scrollLeft;
+    const dist = target - from;
+    const t0 = performance.now();
+    cancelAnimationFrame(rafId);
+    function step(t) {
+      const p = Math.min(1, (t - t0) / 450);
+      const e = 1 - Math.pow(1 - p, 3);
+      wrap.scrollLeft = from + dist * e;
+      if (p < 1) rafId = requestAnimationFrame(step);
+    }
+    rafId = requestAnimationFrame(step);
+  }
+
+  function momentum() {
+    cancelAnimationFrame(rafId);
+    let v = velX * 14;
+    function step() {
+      if (Math.abs(v) < 0.5) { snapNearest(); return; }
+      wrap.scrollLeft -= v;
+      v *= 0.9;
+      rafId = requestAnimationFrame(step);
+    }
+    rafId = requestAnimationFrame(step);
+  }
+
+  wrap.addEventListener('mousedown', e => {
+    isDragging = true; startX = e.clientX;
+    scrollStart = wrap.scrollLeft; velX = 0; lastX = e.clientX;
+    wrap.classList.add('is-dragging');
+    cancelAnimationFrame(rafId);
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    velX = e.clientX - lastX; lastX = e.clientX;
+    wrap.scrollLeft = scrollStart - (e.clientX - startX);
+  });
+  window.addEventListener('mouseup', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    wrap.classList.remove('is-dragging');
+    momentum();
+  });
+
+  let tStartX = 0, tScrollStart = 0, tVelX = 0, tLastX = 0;
+  wrap.addEventListener('touchstart', e => {
+    tStartX = e.touches[0].clientX; tScrollStart = wrap.scrollLeft;
+    tVelX = 0; tLastX = tStartX;
+    cancelAnimationFrame(rafId);
+  }, { passive: true });
+  wrap.addEventListener('touchmove', e => {
+    tVelX = e.touches[0].clientX - tLastX; tLastX = e.touches[0].clientX;
+    wrap.scrollLeft = tScrollStart - (e.touches[0].clientX - tStartX);
+  }, { passive: true });
+  wrap.addEventListener('touchend', () => { velX = tVelX; momentum(); });
+
+  // ── Prev / Next buttons (mobile) ─────────────────────────
+  let currentIdx = 0;
+  const totalCards = track.querySelectorAll('.feature-card').length;
+
+  function goToIdx(idx) {
+    currentIdx = Math.max(0, Math.min(idx, totalCards - 1));
+    const max = track.scrollWidth - wrap.offsetWidth;
+    const target = Math.min(currentIdx * CARD_STEP, max);
+    const from = wrap.scrollLeft;
+    const t0 = performance.now();
+    cancelAnimationFrame(rafId);
+    function step(t) {
+      const p = Math.min(1, (t - t0) / 420);
+      const e = 1 - Math.pow(1 - p, 3);
+      wrap.scrollLeft = from + (target - from) * e;
+      if (p < 1) rafId = requestAnimationFrame(step);
+    }
+    rafId = requestAnimationFrame(step);
+  }
+
+  const prevBtn = document.getElementById('feat-prev');
+  const nextBtn = document.getElementById('feat-next');
+  if (prevBtn) prevBtn.addEventListener('click', () => goToIdx(currentIdx - 1));
+  if (nextBtn) nextBtn.addEventListener('click', () => goToIdx(currentIdx + 1));
+
+  // Keep currentIdx in sync after drag/snap
+  wrap.addEventListener('scrollend', () => {
+    currentIdx = Math.round(wrap.scrollLeft / CARD_STEP);
+  });
+})();
+
+// ===== SCROLL VELOCITY SKEW on section headers =====
+let currentVelocity = 0;
+lenis.on('scroll', ({ velocity }) => { currentVelocity = velocity; });
+const velocitySkewEls = Array.from(document.querySelectorAll('.velocity-skew'));
+
+// ===== SHARED RAF — marquee + velocity skew in one callback =====
+function animShared() {
+  // Marquee
+  const w1 = m1.scrollWidth / 2;
+  const w2 = m2.scrollWidth / 2;
+  mPos1 -= 0.5 * marqueeSpeed;
+  mPos2 += 0.4 * marqueeSpeed;
+  if (mPos1 <= -w1) mPos1 = 0;
+  if (mPos2 >= 0)   mPos2 = -w2;
+  m1.style.transform = `translateX(${mPos1}px)`;
+  m2.style.transform = `translateX(${mPos2}px)`;
+  marqueeSpeed += (1 - marqueeSpeed) * 0.05;
+
+  // Velocity skew
+  const clampedSkew = Math.max(-8, Math.min(8, currentVelocity * 0.4));
+  for (let i = 0; i < velocitySkewEls.length; i++) {
+    velocitySkewEls[i].style.transform = `skewX(${clampedSkew}deg)`;
+  }
+  currentVelocity *= 0.92;
+
+  requestAnimationFrame(animShared);
+}
+animShared();
+
+// ===== STORY section — clip-path image reveal + parallax =====
+gsap.fromTo('#story-clip',
+  { clipPath: 'inset(100% 0 0 0)' },
+  { clipPath: 'inset(0% 0 0 0)', duration: 1, ease: 'power3.inOut',
+    scrollTrigger: { trigger: '#story', start: 'top 75%', once: true }
+  });
+gsap.to('#story-clip img', {
+  scale: 1, ease: 'none',
+  scrollTrigger: { trigger: '#story', start: 'top bottom', end: 'bottom top', scrub: 0.5 }
+});
+
+// Story text — split line reveals
+gsap.utils.toArray('#story-text .line-inner').forEach((line, i) => {
+  gsap.fromTo(line,
+    { y: '110%' },
+    { y: '0%', duration: 0.8, delay: i * 0.1, ease: 'power3.out',
+      scrollTrigger: { trigger: '#story-text', start: 'top 80%', once: true }
+    });
+});
+
+gsap.utils.toArray('#story-text p').forEach((p, i) => {
+  gsap.fromTo(p,
+    { opacity: 0, y: 30 },
+    { opacity: 1, y: 0, duration: 0.7, delay: 0.3 + i * 0.15, ease: 'power2.out',
+      scrollTrigger: { trigger: '#story-text', start: 'top 80%', once: true }
+    });
+});
+
+gsap.fromTo('.story-buttons',
+  { opacity: 0, y: 20 },
+  { opacity: 1, y: 0, duration: 0.6, delay: 0.6, ease: 'power2.out',
+    scrollTrigger: { trigger: '#story-text', start: 'top 80%', once: true }
+  });
+
+// Story image wrap (left side) parallax
+gsap.fromTo('.story-image-wrap',
+  { x: -60, opacity: 0 },
+  { x: 0, opacity: 1, duration: 1, ease: 'power2.out',
+    scrollTrigger: { trigger: '#story', start: 'top 80%', once: true }
+  });
+
+// ===== REVEAL animations =====
+gsap.utils.toArray('.reveal').forEach(el => {
+  gsap.fromTo(el,
+    { opacity: 0, y: 40 },
+    { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out',
+      scrollTrigger: { trigger: el, start: 'top 88%', once: true }
+    });
+});
+
+// Stat bars
+gsap.utils.toArray('.stat-bar-fill').forEach(bar => {
+  gsap.to(bar, { width: bar.dataset.width, duration: 1.2, ease: 'power2.out',
+    scrollTrigger: { trigger: bar, start: 'top 90%', once: true }
+  });
+});
+
+// CTA scale
+gsap.fromTo('.cta-big-text',
+  { scale: 0.85, opacity: 0 },
+  { scale: 1, opacity: 1, duration: 1, ease: 'power2.out',
+    scrollTrigger: { trigger: '#final-cta', start: 'top 80%', once: true }
+  });
+
+// =========================================================
+// 7. HERO SNAP VIDEO  (one swipe = one pose + panel)
+// ─ No lenis.stop() — Lenis ticker always runs so GSAP &
+//   ScrollTrigger work everywhere on the page.
+// ─ Capture-phase wheel listener intercepts before Lenis,
+//   lenis.scrollTo() drives movement programmatically.
+// ─ Instant vid.currentTime seek (no choppy proxy tween).
+// =========================================================
+(function() {
+  const vid         = document.getElementById('hero-video');
+  const heroSec     = document.getElementById('hero');
+  const charWrap    = document.getElementById('hero-char-wrap');
+  const heroContent = document.getElementById('hero-content');
+  const heroRight   = document.getElementById('hero-right');
+  const progFill    = document.getElementById('hvid-progress-fill');
+  const scrollInd   = document.getElementById('scroll-ind');
+
+  const PANELS = [
+    { el: document.getElementById('hvp-0'), t: 0.4  },
+    { el: document.getElementById('hvp-1'), t: 4.3  },
+    { el: document.getElementById('hvp-2'), t: 5.8  },
+    { el: document.getElementById('hvp-3'), t: 8.2  },
+  ];
+
+  let state     = 0;
+  let animating = false;
+  let inHero    = true;
+  let lastWheel = 0;
+  const DEBOUNCE = 400;
+
+  vid.addEventListener('loadedmetadata', () => { vid.currentTime = 0; vid.pause(); });
+
+  // seeked-event-chained scrub at constant 1× speed.
+  // Each seek fires only after the browser decodes the frame, so every frame renders.
+  // Linear interpolation keyed to wall clock keeps speed constant throughout.
+  function scrubTo(targetTime, duration, onDone) {
+    const startTime = vid.currentTime;
+    const startWall = performance.now();
+    let cancelled = false;
+
+    function step() {
+      if (cancelled) return;
+      const p = Math.min(1, (performance.now() - startWall) / duration);
+      if (p >= 1) {
+        vid.removeEventListener('seeked', step);
+        vid.currentTime = targetTime;
+        if (onDone) onDone();
+        return;
+      }
+      vid.currentTime = startTime + (targetTime - startTime) * p;
+    }
+
+    vid.addEventListener('seeked', step);
+    step();
+
+    return () => {
+      cancelled = true;
+      vid.removeEventListener('seeked', step);
+    };
+  }
+
+  // scroll position of the nth step inside the 400vh hero
+  function stepScroll(n) {
+    return heroSec.offsetTop + n * window.innerHeight;
+  }
+
+  // ── STATE TRANSITION ─────────────────────────────────────
+  function goTo(next) {
+    if (animating || next === state) return;
+    if (next < 0 || next > PANELS.length) return;
+    animating = true;
+    const prev = state;
+    state = next;
+    const dir = next > prev ? 1 : -1;
+
+    // Smooth scroll to this step's canonical position (programmatic — no wheel needed)
+    lenis.scrollTo(stepScroll(state), {
+      duration: 0.7,
+      easing: (t) => t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2
+    });
+
+    if (progFill) progFill.style.width = (state / PANELS.length * 100).toFixed(0) + '%';
+
+    // ── Back to hero intro — scrub video backward to t=0 ────
+    if (state === 0) {
+      PANELS.forEach(p => gsap.to(p.el, { opacity: 0, duration: 0.2 }));
+      const backFrom = prev > 0 ? PANELS[prev - 1].t : 0;
+      function revealHero() {
+        animating = false;
+        gsap.to(vid, { opacity: 0, duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
+        gsap.to([charWrap, heroContent, heroRight], { opacity: 1, duration: 0.65, ease: 'power2.out' });
+        if (scrollInd) setTimeout(() => scrollInd.classList.add('visible'), 450);
+      }
+      if (backFrom > 0.05) {
+        let done = false;
+        const BACK_DUR = Math.round(backFrom * 1000);
+        let cancel = null;
+        function finishRev() {
+          if (done) return; done = true;
+          if (cancel) cancel();
+          vid.currentTime = 0;
+          revealHero();
+        }
+        cancel = scrubTo(0, BACK_DUR, finishRev);
+        setTimeout(finishRev, BACK_DUR + 400);
+      } else {
+        vid.currentTime = 0;
+        revealHero();
+      }
+      return;
+    }
+
+    // ── Fade out outgoing elements ──────────────────────────
+    if (prev === 0) {
+      if (scrollInd) scrollInd.classList.remove('visible');
+      gsap.to([charWrap, heroContent, heroRight], { opacity: 0, duration: 0.3, ease: 'power2.in' });
+    } else {
+      gsap.to(PANELS[prev - 1].el, { opacity: 0, y: dir * -40, duration: 0.25, ease: 'power2.in' });
+    }
+    PANELS.forEach((p, i) => { if (i !== prev - 1 && i !== state - 1) gsap.set(p.el, { opacity: 0 }); });
+
+    const fromTime = prev > 0 ? PANELS[prev - 1].t : 0;
+    const toTime   = PANELS[state - 1].t;
+
+    function showPanel() {
+      animating = false;
+      gsap.fromTo(PANELS[state - 1].el,
+        { opacity: 0, y: dir > 0 ? 45 : -45 },
+        { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }
+      );
+    }
+
+    // ── FORWARD: play at 1.5× ────────────────────────────────
+    if (dir > 0 && toTime > fromTime) {
+      gsap.to(vid, { opacity: 1, duration: 0.3, overwrite: 'auto' });
+      vid.currentTime  = fromTime;
+      vid.playbackRate = 1.5;
+      let done = false;
+
+      function finish() {
+        if (done) return;
+        done = true;
+        vid.removeEventListener('timeupdate', onTimeUpdate);
+        vid.pause();
+        vid.playbackRate = 1.0;
+        vid.currentTime  = toTime;
+        showPanel();
+      }
+
+      function tick() {
+        if (done) return;
+        if (vid.currentTime >= toTime - 0.05 || vid.ended) { finish(); return; }
+        requestAnimationFrame(tick);
+      }
+
+      function onTimeUpdate() {
+        if (!done && vid.currentTime >= toTime - 0.05) finish();
+      }
+      vid.addEventListener('timeupdate', onTimeUpdate);
+
+      vid.play().then(() => requestAnimationFrame(tick)).catch(finish);
+      setTimeout(finish, ((toTime - fromTime) / 1.5 + 1.5) * 1000);
+
+    // ── BACKWARD: direct currentTime scrub ───────────────────
+    } else {
+      let done = false;
+      const span = fromTime - toTime;
+      const BACK_DUR = Math.round(span * 1000);
+      let cancel = null;
+      function finishBwd() {
+        if (done) return; done = true;
+        if (cancel) cancel();
+        vid.currentTime = toTime;
+        showPanel();
+      }
+      cancel = scrubTo(toTime, BACK_DUR, finishBwd);
+      setTimeout(finishBwd, BACK_DUR + 400);
+    }
+  }
+
+  // ── EXIT hero — scroll to next section, release control ──
+  function exitHero() {
+    inHero = false;
+    const nextEl = heroSec.nextElementSibling;
+    if (nextEl) lenis.scrollTo(nextEl, { duration: 0.75 });
+  }
+
+  // ── Track hero visibility via the 400-vh container ───────
+  new IntersectionObserver(([e]) => {
+    inHero = e.isIntersecting;
+  }, { threshold: [0, 0.05] }).observe(heroSec);
+
+  // ── WHEEL — capture phase fires BEFORE Lenis bubble listener
+  //    stopImmediatePropagation ensures Lenis never sees it
+  //    while we're in the hero, so it can't fight our scrollTo ──
+  window.addEventListener('wheel', (e) => {
+    if (!inHero) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    const now = Date.now();
+    if (Math.abs(e.deltaY) < 3 || now - lastWheel < DEBOUNCE || animating) return;
+    lastWheel = now;
+
+    if (e.deltaY > 0) {
+      state < PANELS.length ? goTo(state + 1) : exitHero();
+    } else {
+      if (state > 0) goTo(state - 1);
+    }
+  }, { passive: false, capture: true });
+
+  // ── TOUCH ────────────────────────────────────────────────
+  let touchY = 0;
+  window.addEventListener('touchstart', e => { if (inHero) touchY = e.touches[0].clientY; }, { passive: true });
+  window.addEventListener('touchmove', e => { if (inHero) e.preventDefault(); }, { passive: false });
+  window.addEventListener('touchend', e => {
+    if (!inHero || animating) return;
+    const dy = touchY - e.changedTouches[0].clientY;
+    if (Math.abs(dy) < 30) return;
+    const now = Date.now();
+    if (now - lastWheel < DEBOUNCE) return;
+    lastWheel = now;
+    if (dy > 0) { state < PANELS.length ? goTo(state + 1) : exitHero(); }
+    else { if (state > 0) goTo(state - 1); }
+  }, { passive: true });
+
+})();
+
+// =========================================================
+// 8. COUNTER ANIMATION
+// =========================================================
+function animateCounter(id, end, suffix, formatter) {
+  const el = document.getElementById(id);
+  let cur = 0;
+  const inc = end / 90;
+  const interval = setInterval(() => {
+    cur = Math.min(cur + inc, end);
+    el.textContent = (formatter ? formatter(Math.floor(cur)) : Math.floor(cur)) + (suffix || '');
+    if (cur >= end) clearInterval(interval);
+  }, 16);
+}
+</script>
+</body>
+</html>
