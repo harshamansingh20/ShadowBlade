@@ -290,7 +290,7 @@ footer .foot-socials{display:flex;gap:8px;}
 
     <!-- Portrait video — centered, sides fade to bg -->
     <div class="hero-vid-wrap">
-      <video id="hero-video" muted playsinline preload="auto" src="cinematic.webm"></video>
+      <video id="hero-video" muted playsinline preload="auto" src="cinematic.mp4"></video>
     </div>
 
     <div class="hero-ghost-title" id="ghost-title">
@@ -1015,12 +1015,10 @@ gsap.fromTo('.cta-big-text',
   });
 
 // =========================================================
-// 7. HERO SNAP VIDEO  (one swipe = one pose + panel)
-// ─ No lenis.stop() — Lenis ticker always runs so GSAP &
-//   ScrollTrigger work everywhere on the page.
-// ─ Capture-phase wheel listener intercepts before Lenis,
-//   lenis.scrollTo() drives movement programmatically.
-// ─ Instant vid.currentTime seek (no choppy proxy tween).
+// 7. HERO SCROLL VIDEO + TEXT PANELS
+// ─ No scroll hijacking — Lenis runs freely.
+// ─ ScrollTrigger reads the 400vh container to scrub
+//   video time and pop panels left/right as you scroll.
 // =========================================================
 (function() {
   const vid         = document.getElementById('hero-video');
@@ -1031,214 +1029,76 @@ gsap.fromTo('.cta-big-text',
   const progFill    = document.getElementById('hvid-progress-fill');
   const scrollInd   = document.getElementById('scroll-ind');
 
+  if (!vid || !heroSec) return;
+
+  vid.pause();
+  vid.currentTime = 0;
+  if (scrollInd) setTimeout(() => scrollInd.classList.add('visible'), 1200);
+
+  // Queue-based video scrub: browsers can't render frames faster than seeks complete.
+  // We store the latest requested time and flush it only after the previous seek finishes.
+  let seekTarget = null;
+  let isSeeking  = false;
+
+  function seekVideo(t) {
+    seekTarget = t;
+    if (!isSeeking) flush();
+  }
+  function flush() {
+    if (seekTarget === null) { isSeeking = false; return; }
+    isSeeking = true;
+    vid.currentTime = seekTarget;
+    seekTarget = null;
+  }
+  vid.addEventListener('seeked', flush);
+
+  // Each panel: progress window [enter→peak] slide in, [hold] visible, [exit] fade out
   const PANELS = [
-    { el: document.getElementById('hvp-0'), t: 0.4  },
-    { el: document.getElementById('hvp-1'), t: 4.3  },
-    { el: document.getElementById('hvp-2'), t: 5.8  },
-    { el: document.getElementById('hvp-3'), t: 8.2  },
+    { el: document.getElementById('hvp-0'), enter:0.10, peak:0.20, hold:0.38, exit:0.46, dx:-60 },
+    { el: document.getElementById('hvp-1'), enter:0.48, peak:0.58, hold:0.72, exit:0.80, dx: 60 },
+    { el: document.getElementById('hvp-2'), enter:0.75, peak:0.84, hold:0.94, exit:1.00, dx:-60 },
   ];
 
-  let state     = 0;
-  let animating = false;
-  let inHero    = true;
-  let lastWheel = 0;
-  const DEBOUNCE = 400;
+  ScrollTrigger.create({
+    trigger: heroSec,
+    start: 'top top',
+    end: 'bottom bottom',
+    onUpdate: ({ progress }) => {
 
-  vid.addEventListener('loadedmetadata', () => { vid.currentTime = 0; vid.pause(); });
-
-  // seeked-event-chained scrub at constant 1× speed.
-  // Each seek fires only after the browser decodes the frame, so every frame renders.
-  // Linear interpolation keyed to wall clock keeps speed constant throughout.
-  function scrubTo(targetTime, duration, onDone) {
-    const startTime = vid.currentTime;
-    const startWall = performance.now();
-    let cancelled = false;
-
-    function step() {
-      if (cancelled) return;
-      const p = Math.min(1, (performance.now() - startWall) / duration);
-      if (p >= 1) {
-        vid.removeEventListener('seeked', step);
-        vid.currentTime = targetTime;
-        if (onDone) onDone();
-        return;
+      // ── Video scrub ──────────────────────────────────────
+      if (vid.readyState >= 2 && vid.duration) {
+        seekVideo(progress * vid.duration);
       }
-      vid.currentTime = startTime + (targetTime - startTime) * p;
-    }
+      if (progFill) progFill.style.width = (progress * 100).toFixed(1) + '%';
 
-    vid.addEventListener('seeked', step);
-    step();
-
-    return () => {
-      cancelled = true;
-      vid.removeEventListener('seeked', step);
-    };
-  }
-
-  // scroll position of the nth step inside the 400vh hero
-  function stepScroll(n) {
-    return heroSec.offsetTop + n * window.innerHeight;
-  }
-
-  // ── STATE TRANSITION ─────────────────────────────────────
-  function goTo(next) {
-    if (animating || next === state) return;
-    if (next < 0 || next > PANELS.length) return;
-    animating = true;
-    const prev = state;
-    state = next;
-    const dir = next > prev ? 1 : -1;
-
-    // Smooth scroll to this step's canonical position (programmatic — no wheel needed)
-    lenis.scrollTo(stepScroll(state), {
-      duration: 0.7,
-      easing: (t) => t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2
-    });
-
-    if (progFill) progFill.style.width = (state / PANELS.length * 100).toFixed(0) + '%';
-
-    // ── Back to hero intro — scrub video backward to t=0 ────
-    if (state === 0) {
-      PANELS.forEach(p => gsap.to(p.el, { opacity: 0, duration: 0.2 }));
-      const backFrom = prev > 0 ? PANELS[prev - 1].t : 0;
-      function revealHero() {
-        animating = false;
-        gsap.to(vid, { opacity: 0, duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
-        gsap.to([charWrap, heroContent, heroRight], { opacity: 1, duration: 0.65, ease: 'power2.out' });
-        if (scrollInd) setTimeout(() => scrollInd.classList.add('visible'), 450);
+      // ── Hero intro → video crossfade (first 15% of scroll)
+      const cf = Math.min(1, progress / 0.15);
+      gsap.set(vid, { opacity: cf });
+      if (charWrap)    gsap.set(charWrap,    { opacity: 1 - cf });
+      if (heroContent) gsap.set(heroContent, { opacity: 1 - cf });
+      if (heroRight)   gsap.set(heroRight,   { opacity: 1 - cf });
+      if (scrollInd) {
+        if (progress > 0.06) scrollInd.classList.remove('visible');
+        else                  scrollInd.classList.add('visible');
       }
-      if (backFrom > 0.05) {
-        let done = false;
-        const BACK_DUR = Math.round(backFrom * 1000);
-        let cancel = null;
-        function finishRev() {
-          if (done) return; done = true;
-          if (cancel) cancel();
-          vid.currentTime = 0;
-          revealHero();
+
+      // ── Text panels pop left / right ─────────────────────
+      PANELS.forEach(({ el, enter, peak, hold, exit, dx }) => {
+        if (!el) return;
+        let opacity = 0, x = dx;
+        if (progress >= enter && progress < peak) {
+          const t = (progress - enter) / (peak - enter);
+          opacity = t; x = dx * (1 - t);
+        } else if (progress >= peak && progress < hold) {
+          opacity = 1; x = 0;
+        } else if (progress >= hold && progress < exit) {
+          const t = (progress - hold) / (exit - hold);
+          opacity = 1 - t; x = 0;
         }
-        cancel = scrubTo(0, BACK_DUR, finishRev);
-        setTimeout(finishRev, BACK_DUR + 400);
-      } else {
-        vid.currentTime = 0;
-        revealHero();
-      }
-      return;
+        gsap.set(el, { opacity, x });
+      });
     }
-
-    // ── Fade out outgoing elements ──────────────────────────
-    if (prev === 0) {
-      if (scrollInd) scrollInd.classList.remove('visible');
-      gsap.to([charWrap, heroContent, heroRight], { opacity: 0, duration: 0.3, ease: 'power2.in' });
-    } else {
-      gsap.to(PANELS[prev - 1].el, { opacity: 0, y: dir * -40, duration: 0.25, ease: 'power2.in' });
-    }
-    PANELS.forEach((p, i) => { if (i !== prev - 1 && i !== state - 1) gsap.set(p.el, { opacity: 0 }); });
-
-    const fromTime = prev > 0 ? PANELS[prev - 1].t : 0;
-    const toTime   = PANELS[state - 1].t;
-
-    function showPanel() {
-      animating = false;
-      gsap.fromTo(PANELS[state - 1].el,
-        { opacity: 0, y: dir > 0 ? 45 : -45 },
-        { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out' }
-      );
-    }
-
-    // ── FORWARD: play at 1.5× ────────────────────────────────
-    if (dir > 0 && toTime > fromTime) {
-      gsap.to(vid, { opacity: 1, duration: 0.3, overwrite: 'auto' });
-      vid.currentTime  = fromTime;
-      vid.playbackRate = 1.5;
-      let done = false;
-
-      function finish() {
-        if (done) return;
-        done = true;
-        vid.removeEventListener('timeupdate', onTimeUpdate);
-        vid.pause();
-        vid.playbackRate = 1.0;
-        vid.currentTime  = toTime;
-        showPanel();
-      }
-
-      function tick() {
-        if (done) return;
-        if (vid.currentTime >= toTime - 0.05 || vid.ended) { finish(); return; }
-        requestAnimationFrame(tick);
-      }
-
-      function onTimeUpdate() {
-        if (!done && vid.currentTime >= toTime - 0.05) finish();
-      }
-      vid.addEventListener('timeupdate', onTimeUpdate);
-
-      vid.play().then(() => requestAnimationFrame(tick)).catch(finish);
-      setTimeout(finish, ((toTime - fromTime) / 1.5 + 1.5) * 1000);
-
-    // ── BACKWARD: direct currentTime scrub ───────────────────
-    } else {
-      let done = false;
-      const span = fromTime - toTime;
-      const BACK_DUR = Math.round(span * 1000);
-      let cancel = null;
-      function finishBwd() {
-        if (done) return; done = true;
-        if (cancel) cancel();
-        vid.currentTime = toTime;
-        showPanel();
-      }
-      cancel = scrubTo(toTime, BACK_DUR, finishBwd);
-      setTimeout(finishBwd, BACK_DUR + 400);
-    }
-  }
-
-  // ── EXIT hero — scroll to next section, release control ──
-  function exitHero() {
-    inHero = false;
-    const nextEl = heroSec.nextElementSibling;
-    if (nextEl) lenis.scrollTo(nextEl, { duration: 0.75 });
-  }
-
-  // ── Track hero visibility via the 400-vh container ───────
-  new IntersectionObserver(([e]) => {
-    inHero = e.isIntersecting;
-  }, { threshold: [0, 0.05] }).observe(heroSec);
-
-  // ── WHEEL — capture phase fires BEFORE Lenis bubble listener
-  //    stopImmediatePropagation ensures Lenis never sees it
-  //    while we're in the hero, so it can't fight our scrollTo ──
-  window.addEventListener('wheel', (e) => {
-    if (!inHero) return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-
-    const now = Date.now();
-    if (Math.abs(e.deltaY) < 3 || now - lastWheel < DEBOUNCE || animating) return;
-    lastWheel = now;
-
-    if (e.deltaY > 0) {
-      state < PANELS.length ? goTo(state + 1) : exitHero();
-    } else {
-      if (state > 0) goTo(state - 1);
-    }
-  }, { passive: false, capture: true });
-
-  // ── TOUCH ────────────────────────────────────────────────
-  let touchY = 0;
-  window.addEventListener('touchstart', e => { if (inHero) touchY = e.touches[0].clientY; }, { passive: true });
-  window.addEventListener('touchmove', e => { if (inHero) e.preventDefault(); }, { passive: false });
-  window.addEventListener('touchend', e => {
-    if (!inHero || animating) return;
-    const dy = touchY - e.changedTouches[0].clientY;
-    if (Math.abs(dy) < 30) return;
-    const now = Date.now();
-    if (now - lastWheel < DEBOUNCE) return;
-    lastWheel = now;
-    if (dy > 0) { state < PANELS.length ? goTo(state + 1) : exitHero(); }
-    else { if (state > 0) goTo(state - 1); }
-  }, { passive: true });
+  });
 
 })();
 
