@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SHADOWBLADE — The Last Ronin</title>
+<title>Shadowblade — The Last Ronin</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:title" content="Shadowblade — The Last Ronin">
+<meta property="og:description" content="A disgraced blade returns from shadow. Pre-order the dark fantasy action RPG of 2026.">
+<meta property="og:image" content="https://shadowblade-b0m.pages.dev/og-cover.jpg">
+<meta property="og:url" content="https://shadowblade-b0m.pages.dev/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Shadowblade — The Last Ronin">
+<meta name="twitter:description" content="A disgraced blade returns from shadow. Pre-order the dark fantasy action RPG of 2026.">
+<meta name="twitter:image" content="https://shadowblade-b0m.pages.dev/og-cover.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -226,6 +237,70 @@ footer .foot-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spa
 footer .foot-title span{color:rgba(192,57,43,0.4);}
 footer .foot-socials{display:flex;gap:8px;}
 
+/* Uppercase via CSS, not hardcoded HTML */
+.hero-ghost-title span,.hvp .vp-title,.section-header h2,.story-text h2,.cta-big-text,.hero-title{text-transform:uppercase;}
+
+/* Social icon SVGs */
+.soc svg{width:14px;height:14px;fill:currentColor;display:block;}
+
+/* Carousel keyboard focus */
+.feat-nav-btn:focus-visible{outline:2px solid var(--red);outline-offset:3px;}
+
+/* Countdown timer */
+#countdown{display:flex;gap:32px;justify-content:center;margin-top:24px;position:relative;z-index:1;}
+.cd-unit{text-align:center;}
+.cd-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,72px);color:#fff;text-shadow:0 0 30px var(--red-glow);line-height:1;min-width:2ch;display:block;}
+.cd-label{font-size:9px;letter-spacing:4px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-top:4px;display:block;}
+.cd-sep{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,72px);color:rgba(192,57,43,0.4);line-height:1;align-self:flex-start;}
+
+/* Marquee pause on hover / focus-within */
+.marquee-strip:hover,
+.marquee-strip:focus-within{--mp:1;}
+
+/* Reduced motion — static tickers, minimal transitions */
+@media(prefers-reduced-motion:reduce){
+  .scroll-line-v,.story-ring,.pre-bar-fill{animation:none!important;}
+  *{transition-duration:0.01ms!important;}
+}
+
+/* ===== STANCE CANVAS ANIMATION ===== */
+#stance-scroll{position:relative;z-index:5;height:400vh;}
+.stance-sticky{position:sticky;top:0;height:100vh;width:100%;display:flex;align-items:center;overflow:hidden;background:linear-gradient(180deg,rgba(2,0,10,0.98) 0%,rgba(2,0,10,0.97) 100%);}
+.stance-inner{display:grid;grid-template-columns:1fr 1fr;gap:60px;max-width:1100px;width:100%;margin:0 auto;padding:0 48px;align-items:center;}
+.stance-canvas-wrap{position:relative;display:flex;justify-content:center;align-items:center;}
+#stance-canvas{
+  height:76vh;width:auto;display:block;opacity:0;
+  transition:opacity 0.5s ease;
+  -webkit-mask-image:radial-gradient(ellipse 62% 74% at 50% 50%, black 18%, rgba(0,0,0,0.55) 58%, transparent 84%);
+  mask-image:radial-gradient(ellipse 62% 74% at 50% 50%, black 18%, rgba(0,0,0,0.55) 58%, transparent 84%);
+}
+.stance-loading{position:absolute;font-size:10px;letter-spacing:5px;color:rgba(255,255,255,0.18);text-transform:uppercase;pointer-events:none;}
+.stance-prog-wrap{position:absolute;left:-20px;top:50%;transform:translateY(-50%);width:1px;height:160px;background:rgba(255,255,255,0.07);}
+.stance-prog-fill{position:absolute;top:0;left:0;width:100%;height:0%;background:linear-gradient(to bottom,var(--red-dark),var(--red));}
+
+/* Text panels */
+.stance-panels{position:relative;min-height:300px;}
+.stance-panel{position:absolute;top:0;left:0;width:100%;opacity:0;transform:translateY(0);pointer-events:none;}
+.stance-panel.active{opacity:1;pointer-events:auto;}
+.stance-big-num{font-family:'Bebas Neue',sans-serif;font-size:clamp(80px,11vw,150px);color:rgba(255,255,255,0.04);line-height:1;user-select:none;margin-bottom:-12px;}
+.stance-label{font-size:10px;letter-spacing:6px;color:var(--red);text-transform:uppercase;display:block;margin-bottom:14px;}
+.stance-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,4vw,58px);letter-spacing:2px;line-height:1.05;color:#fff;text-transform:uppercase;margin-bottom:12px;}
+.stance-line{width:40px;height:2px;background:var(--red);display:block;margin:16px 0;}
+.stance-desc{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.85;letter-spacing:0.3px;max-width:400px;}
+
+/* Progress dots */
+.stance-dots{position:absolute;right:48px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px;z-index:10;}
+.stance-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.06);cursor:default;transition:background 0.3s,transform 0.3s,height 0.3s;}
+.stance-dot.active{background:var(--red);transform:scale(1.5);border-color:rgba(192,57,43,0.4);}
+
+@media(max-width:900px){
+  .stance-inner{grid-template-columns:1fr;grid-template-rows:auto auto;gap:12px;padding:0 24px;}
+  #stance-canvas{height:44vh;}
+  .stance-panels{min-height:240px;}
+  .stance-dots{right:16px;}
+  .stance-big-num{font-size:64px;}
+}
+
 /* Responsive */
 @media(max-width:900px){
   .story-grid{grid-template-columns:1fr;gap:40px;}
@@ -276,8 +351,8 @@ footer .foot-socials{display:flex;gap:8px;}
 <nav id="main-nav">
   <div class="logo">SHADOW<span>BLADE</span></div>
   <div class="nav-links">
-    <a href="#features">Story</a>
-    <a href="#story">Combat</a>
+    <a href="#story">Story</a>
+    <a href="#features">Combat</a>
     <a href="#world-stats">World</a>
     <a href="#final-cta">Media</a>
   </div>
@@ -294,19 +369,19 @@ footer .foot-socials{display:flex;gap:8px;}
     </div>
 
     <div class="hero-ghost-title" id="ghost-title">
-      <span>SHADOW</span>
-      <span>BLADE</span>
+      <span>Shadow</span>
+      <span>Blade</span>
     </div>
     <div class="hero-character-wrap" id="hero-char-wrap">
       <div class="clip-reveal">
-        <img class="hero-character" id="hero-char" src="hero.png" alt="Shadowblade hero character" onerror="this.parentElement.parentElement.style.display='none'">
+        <img class="hero-character" id="hero-char" src="hero.png" alt="Kaede, the last ronin, standing in shadow" onerror="this.parentElement.parentElement.style.display='none'">
       </div>
     </div>
     <div class="hero-content-left" id="hero-content">
       <div class="hero-tagline"><span class="tag-inner">2026 · Action RPG · Dark Fantasy</span></div>
       <h1 class="hero-title">
-        <span class="split-line"><span class="line-inner">THE LAST</span></span>
-        <span class="split-line"><span class="line-inner red">RONIN</span></span>
+        <span class="split-line"><span class="line-inner">The Last</span></span>
+        <span class="split-line"><span class="line-inner red">Ronin</span></span>
       </h1>
       <div class="hero-subtitle"><span class="line-inner">Walks in darkness · Strikes from shadow</span></div>
       <div class="hero-cta-group">
@@ -316,33 +391,39 @@ footer .foot-socials{display:flex;gap:8px;}
     </div>
     <div class="hero-content-right" id="hero-right">
       <div class="hero-stats">
-        <div class="stat"><div class="stat-num" id="counter-1">0</div><div class="stat-label">Wishlisted</div></div>
-        <div class="stat"><div class="stat-num" id="counter-2">0+</div><div class="stat-label">Hours of Gameplay</div></div>
-        <div class="stat"><div class="stat-num" id="counter-3">0+</div><div class="stat-label">Enemy Types</div></div>
+        <div class="stat"><div class="stat-num" id="counter-1">847K</div><div class="stat-label">Wishlisted</div></div>
+        <div class="stat"><div class="stat-num" id="counter-2">60+</div><div class="stat-label">Hours of Gameplay</div></div>
+        <div class="stat"><div class="stat-num" id="counter-3">127+</div><div class="stat-label">Enemy Types</div></div>
       </div>
       <div class="hero-socials">
-        <div class="soc">&#120143;</div>
-        <div class="soc" style="font-size:13px">&#9654;</div>
-        <div class="soc" style="font-size:13px">f</div>
+        <a class="soc" href="#" aria-label="Follow on X / Twitter">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L2.032 2.25H8.1l4.26 5.632L18.245 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+        </a>
+        <a class="soc" href="#" aria-label="Watch on YouTube">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+        <a class="soc" href="#" aria-label="Follow on Facebook">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
       </div>
     </div>
 
     <!-- Scroll text panels — fade in/out as video scrubs -->
     <div class="hvp tl" id="hvp-0">
       <span class="vp-label">Prologue</span>
-      <div class="vp-title">EXILE ENDS.<br>WAR BEGINS.</div>
+      <div class="vp-title">Exile Ends.<br>War Begins.</div>
       <span class="vp-line"></span>
       <p class="vp-desc">A disgraced blade returns from shadow. The empire that cast him out will learn — darkness remembers.</p>
     </div>
     <div class="hvp tr" id="hvp-1">
       <span class="vp-label">Combat</span>
-      <div class="vp-title">200+ COMBOS<br>FIVE SCHOOLS</div>
+      <div class="vp-title">200+ Combos<br>Five Schools</div>
       <span class="vp-line"></span>
       <p class="vp-desc">Chain light, heavy and shadow strikes into art. Every duel is a sentence written in steel.</p>
     </div>
     <div class="hvp bl" id="hvp-2">
       <span class="vp-label">The World</span>
-      <div class="vp-title">60 HOURS.<br>8 PROVINCES.</div>
+      <div class="vp-title">60 Hours.<br>8 Provinces.</div>
       <span class="vp-line"></span>
       <p class="vp-desc">A feudal Japan rebuilt from ash. Dynamic seasons, living clans, and a world that reacts to every choice.</p>
     </div>
@@ -378,13 +459,13 @@ footer .foot-socials{display:flex;gap:8px;}
 <!-- FEATURES (Horizontal scroll) -->
 <section id="features">
   <div class="features-header section-header">
-    <h2 class="velocity-skew" id="features-title">FORGED IN <span class="red">SHADOW</span></h2>
+    <h2 class="velocity-skew" id="features-title">Forged in <span class="red">Shadow</span></h2>
     <p>Six pillars of a world worth dying for</p>
   </div>
   <div class="feat-nav-container">
-  <button class="feat-nav-btn feat-nav-prev" id="feat-prev" aria-label="Previous">&#8249;</button>
-  <div class="horiz-scroll-wrap">
-    <div class="horiz-scroll-track" id="horiz-track">
+  <button class="feat-nav-btn feat-nav-prev" id="feat-prev" aria-label="Previous feature">&#8249;</button>
+  <div class="horiz-scroll-wrap" role="region" aria-label="Game features">
+    <div class="horiz-scroll-track" id="horiz-track" aria-live="polite">
       <div class="feature-card">
         <div class="feature-num">01</div>
         <div class="feature-title">Blade Mastery</div>
@@ -417,7 +498,7 @@ footer .foot-socials{display:flex;gap:8px;}
       </div>
     </div>
   </div>
-  <button class="feat-nav-btn feat-nav-next" id="feat-next" aria-label="Next">&#8250;</button>
+  <button class="feat-nav-btn feat-nav-next" id="feat-next" aria-label="Next feature">&#8250;</button>
   </div>
 </section>
 
@@ -429,17 +510,68 @@ footer .foot-socials{display:flex;gap:8px;}
     <span>PC</span><span class="red-m">&#x2022;</span>
     <span>PS5</span><span class="red-m">&#x2022;</span>
     <span>Xbox Series X</span><span class="red-m">&#x2022;</span>
-    <span>2026</span><span class="red-m">&#x2022;</span>
+    <span>Q3 2026</span><span class="red-m">&#x2022;</span>
     <span>Dark Fantasy</span><span class="red-m">&#x2022;</span>
     <span>Action RPG</span><span class="red-m">&#x2022;</span>
     <span>PC</span><span class="red-m">&#x2022;</span>
     <span>PS5</span><span class="red-m">&#x2022;</span>
     <span>Xbox Series X</span><span class="red-m">&#x2022;</span>
-    <span>2026</span><span class="red-m">&#x2022;</span>
+    <span>Q3 2026</span><span class="red-m">&#x2022;</span>
     <span>Dark Fantasy</span><span class="red-m">&#x2022;</span>
     <span>Action RPG</span><span class="red-m">&#x2022;</span>
   </div>
 </div>
+
+<div class="section-divider"></div>
+
+<!-- STANCE CANVAS ANIMATION -->
+<section id="stance-scroll">
+  <div class="stance-sticky">
+    <div class="stance-inner">
+
+      <!-- Left: canvas -->
+      <div class="stance-canvas-wrap">
+        <div class="stance-prog-wrap"><div class="stance-prog-fill" id="stance-prog-fill"></div></div>
+        <div class="stance-loading" id="stance-loading">Loading</div>
+        <canvas id="stance-canvas"></canvas>
+      </div>
+
+      <!-- Right: text panels -->
+      <div class="stance-panels" id="stance-panels">
+        <div class="stance-panel active" data-stance="0">
+          <div class="stance-big-num">01</div>
+          <span class="stance-label">Shadow Stance</span>
+          <div class="stance-title">Read Before<br>You Strike</div>
+          <span class="stance-line"></span>
+          <p class="stance-desc">The passive form. Lower your blade and feel the weight of the air shift. Shadow stance is not weakness — it is a coiled spring holding three hundred years of fury in check.</p>
+        </div>
+        <div class="stance-panel" data-stance="1">
+          <div class="stance-big-num">02</div>
+          <span class="stance-label">Void Strike</span>
+          <div class="stance-title">Channel<br>the Darkness</div>
+          <span class="stance-line"></span>
+          <p class="stance-desc">Phase between realms mid-swing. The blade passes through armour like smoke through silk. What the enemy cannot see, they cannot parry. What they cannot parry, they cannot survive.</p>
+        </div>
+        <div class="stance-panel" data-stance="2">
+          <div class="stance-big-num">03</div>
+          <span class="stance-label">Ronin's Wrath</span>
+          <div class="stance-title">Dishonour<br>Made Weapon</div>
+          <span class="stance-line"></span>
+          <p class="stance-desc">Every betrayal. Every scar. Every name of the fallen — channelled into a single devastating strike. This is not combat. This is reckoning made flesh.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stance progress dots -->
+    <div class="stance-dots" id="stance-dots">
+      <div class="stance-dot active"></div>
+      <div class="stance-dot"></div>
+      <div class="stance-dot"></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
 
 <!-- STORY -->
 <section id="story">
@@ -448,14 +580,14 @@ footer .foot-socials{display:flex;gap:8px;}
       <div class="story-ring story-ring-1"></div>
       <div class="story-ring story-ring-2"></div>
       <div class="story-img-clip" id="story-clip">
-        <img src="hero.png" alt="Shadowblade character" onerror="this.parentElement.style.display='none'">
+        <img src="hero.png" alt="Kaede emerging reborn from the shadow realm" loading="lazy" onerror="this.parentElement.style.display='none'">
       </div>
     </div>
     <div class="story-text" id="story-text">
       <h2>
-        <span class="split-line"><span class="line-inner">DISHONOURED.</span></span>
-        <span class="split-line"><span class="line-inner red">REBORN.</span></span>
-        <span class="split-line"><span class="line-inner">UNSTOPPABLE.</span></span>
+        <span class="split-line"><span class="line-inner">Dishonoured.</span></span>
+        <span class="split-line"><span class="line-inner red">Reborn.</span></span>
+        <span class="split-line"><span class="line-inner">Unstoppable.</span></span>
       </h2>
       <p>Once the most feared blade in the Emperor's guard, Kaede was betrayed by the shadow council and left for dead in the burning ruins of Ashenvale. But death refused him. Resurrected by an ancient spirit bound to his bloodline, he now walks between two worlds — the living and the shadow realm.</p>
       <p>Armed with a cursed katana that feeds on the souls of the fallen, Kaede must carve a path through eight feudal provinces to reach the Obsidian Throne and confront the very masters who destroyed everything he swore to protect.</p>
@@ -472,7 +604,7 @@ footer .foot-socials{display:flex;gap:8px;}
 <!-- WORLD STATS -->
 <section id="world-stats">
   <div class="section-header reveal" style="text-align:center;max-width:600px;margin:0 auto 64px;">
-    <h2 class="velocity-skew">THE WORLD <span class="red">AWAITS</span></h2>
+    <h2 class="velocity-skew">The World <span class="red">Awaits</span></h2>
     <p>A living, breathing feudal Japan reimagined in darkness</p>
   </div>
   <div class="stats-grid">
@@ -504,8 +636,15 @@ footer .foot-socials{display:flex;gap:8px;}
 <!-- FINAL CTA -->
 <section id="final-cta">
   <div class="cta-glow"></div>
-  <div class="cta-big-text reveal">CLAIM<br>YOUR<br>DESTINY</div>
-  <div class="cta-subtitle reveal">Available 2026 — PC · PS5 · Xbox Series X</div>
+  <div class="cta-big-text reveal">Claim<br>Your<br>Destiny</div>
+  <div class="cta-subtitle reveal">Available Q3 2026 — PC · PS5 · Xbox Series X</div>
+  <div id="countdown" aria-label="Time until launch">
+    <div class="cd-unit"><span class="cd-num" id="cd-days">--</span><span class="cd-label">Days</span></div>
+    <div class="cd-sep" aria-hidden="true">:</div>
+    <div class="cd-unit"><span class="cd-num" id="cd-hours">--</span><span class="cd-label">Hours</span></div>
+    <div class="cd-sep" aria-hidden="true">:</div>
+    <div class="cd-unit"><span class="cd-num" id="cd-mins">--</span><span class="cd-label">Minutes</span></div>
+  </div>
   <div class="cta-buttons reveal">
     <span class="magnetic-wrap"><button class="btn-main">Pre-Order Now</button></span>
     <span class="magnetic-wrap"><button class="btn-ghost">Add to Wishlist</button></span>
@@ -517,9 +656,15 @@ footer .foot-socials{display:flex;gap:8px;}
   <div class="copy">&copy; 2026 Shadowblade Studios. All rights reserved.</div>
   <div class="foot-title">SHADOW<span>BLADE</span></div>
   <div class="foot-socials">
-    <div class="soc">&#120143;</div>
-    <div class="soc" style="font-size:13px">&#9654;</div>
-    <div class="soc" style="font-size:13px">f</div>
+    <a class="soc" href="#" aria-label="Follow on X / Twitter">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L2.032 2.25H8.1l4.26 5.632L18.245 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+    </a>
+    <a class="soc" href="#" aria-label="Watch on YouTube">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+    </a>
+    <a class="soc" href="#" aria-label="Follow on Facebook">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+    </a>
   </div>
 </footer>
 
@@ -915,6 +1060,13 @@ const m2 = document.getElementById('marquee-2');
   if (prevBtn) prevBtn.addEventListener('click', () => goToIdx(currentIdx - 1));
   if (nextBtn) nextBtn.addEventListener('click', () => goToIdx(currentIdx + 1));
 
+  // Keyboard left/right arrow navigation
+  wrap.setAttribute('tabindex', '0');
+  wrap.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); goToIdx(currentIdx - 1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); goToIdx(currentIdx + 1); }
+  });
+
   // Keep currentIdx in sync after drag/snap
   wrap.addEventListener('scrollend', () => {
     currentIdx = Math.round(wrap.scrollLeft / CARD_STEP);
@@ -926,17 +1078,29 @@ let currentVelocity = 0;
 lenis.on('scroll', ({ velocity }) => { currentVelocity = velocity; });
 const velocitySkewEls = Array.from(document.querySelectorAll('.velocity-skew'));
 
+// ===== MARQUEE pause-on-hover + reduced-motion =====
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let marqueePaused = false;
+document.querySelectorAll('.marquee-strip').forEach(strip => {
+  strip.addEventListener('mouseenter', () => { marqueePaused = true; });
+  strip.addEventListener('mouseleave', () => { marqueePaused = false; });
+  strip.addEventListener('focusin',    () => { marqueePaused = true; });
+  strip.addEventListener('focusout',   () => { marqueePaused = false; });
+});
+
 // ===== SHARED RAF — marquee + velocity skew in one callback =====
 function animShared() {
-  // Marquee
-  const w1 = m1.scrollWidth / 2;
-  const w2 = m2.scrollWidth / 2;
-  mPos1 -= 0.5 * marqueeSpeed;
-  mPos2 += 0.4 * marqueeSpeed;
-  if (mPos1 <= -w1) mPos1 = 0;
-  if (mPos2 >= 0)   mPos2 = -w2;
-  m1.style.transform = `translateX(${mPos1}px)`;
-  m2.style.transform = `translateX(${mPos2}px)`;
+  // Marquee — skip movement when paused or user prefers reduced motion
+  if (!marqueePaused && !reducedMotion) {
+    const w1 = m1.scrollWidth / 2;
+    const w2 = m2.scrollWidth / 2;
+    mPos1 -= 0.5 * marqueeSpeed;
+    mPos2 += 0.4 * marqueeSpeed;
+    if (mPos1 <= -w1) mPos1 = 0;
+    if (mPos2 >= 0)   mPos2 = -w2;
+    m1.style.transform = `translateX(${mPos1}px)`;
+    m2.style.transform = `translateX(${mPos2}px)`;
+  }
   marqueeSpeed += (1 - marqueeSpeed) * 0.05;
 
   // Velocity skew
@@ -1103,10 +1267,149 @@ gsap.fromTo('.cta-big-text',
 })();
 
 // =========================================================
-// 8. COUNTER ANIMATION
+// 8. STANCE CANVAS ANIMATION — scroll-driven frame scrub
+// =========================================================
+(function() {
+  const canvas   = document.getElementById('stance-canvas');
+  const section  = document.getElementById('stance-scroll');
+  const loadingEl= document.getElementById('stance-loading');
+  const progFill = document.getElementById('stance-prog-fill');
+  const panelsEl = document.getElementById('stance-panels');
+  const dotsEl   = document.getElementById('stance-dots');
+  if (!canvas || !section) return;
+
+  const ctx = canvas.getContext('2d');
+  const FIRST = 3, LAST = 121, TOTAL = LAST - FIRST + 1; // 119 frames
+  const TOTAL_STANCES = 3;
+  const FRAME_DIR = 'ezgif-4f54e17eaceeef07-jpg/ezgif-frame-';
+
+  const panels = panelsEl ? Array.from(panelsEl.querySelectorAll('.stance-panel')) : [];
+  const dots   = dotsEl   ? Array.from(dotsEl.querySelectorAll('.stance-dot'))    : [];
+  let currentStance = 0;
+  let lastProgress  = 0;
+
+  // ── Reduced motion: static first frame, no scroll animation
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const img = new Image();
+    img.onload = () => {
+      canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+      ctx.drawImage(img, 0, 0);
+      canvas.classList.add('loaded');
+      if (loadingEl) loadingEl.style.display = 'none';
+    };
+    img.src = FRAME_DIR + '003.jpg';
+    return;
+  }
+
+  // ── Preload all frames (compressed JPEGs stay small in memory)
+  const frames = [];
+  let loadedCount = 0;
+  let initialized = false;
+
+  function initCanvas(img) {
+    if (initialized) return;
+    initialized = true;
+    canvas.width  = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    ctx.drawImage(img, 0, 0);
+    canvas.style.opacity = '1';
+    if (loadingEl) loadingEl.style.display = 'none';
+  }
+
+  for (let i = 0; i < TOTAL; i++) {
+    const img = new Image();
+    const frameNum = String(FIRST + i).padStart(3, '0');
+    img.onload = () => {
+      loadedCount++;
+      if (i === 0) initCanvas(img);
+    };
+    img.src = FRAME_DIR + frameNum + '.jpg';
+    frames.push(img);
+    // Handle already-cached first frame (img.complete is true immediately)
+    if (i === 0 && img.complete && img.naturalWidth) initCanvas(img);
+  }
+
+  // ── Draw a specific frame index (0-based)
+  function drawFrame(idx) {
+    const img = frames[Math.max(0, Math.min(TOTAL - 1, idx))];
+    if (!img || !img.complete || !img.naturalWidth) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+  }
+
+  // ── Switch visible text panel with direction-aware slide
+  function setStance(idx, dir) {
+    if (idx === currentStance) return;
+    const leaving  = panels[currentStance];
+    const entering = panels[idx];
+    const yOut = dir > 0 ? -28 : 28;
+    const yIn  = dir > 0 ?  28 : -28;
+
+    if (leaving) {
+      gsap.to(leaving, {
+        opacity: 0, y: yOut, duration: 0.32, ease: 'power2.in',
+        onComplete: () => { leaving.classList.remove('active'); gsap.set(leaving, { y: 0 }); }
+      });
+    }
+    if (entering) {
+      entering.classList.add('active');
+      gsap.fromTo(entering,
+        { opacity: 0, y: yIn },
+        { opacity: 1, y: 0, duration: 0.42, ease: 'power3.out' }
+      );
+    }
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    currentStance = idx;
+  }
+
+  // ── ScrollTrigger drives everything
+  ScrollTrigger.create({
+    trigger: section,
+    start: 'top top',
+    end: 'bottom bottom',
+    onUpdate: ({ progress }) => {
+      const frameIdx  = Math.min(TOTAL - 1, Math.floor(progress * TOTAL));
+      const stanceIdx = Math.min(TOTAL_STANCES - 1, Math.floor(progress * TOTAL_STANCES));
+      const dir       = progress >= lastProgress ? 1 : -1;
+
+      drawFrame(frameIdx);
+      setStance(stanceIdx, dir);
+      if (progFill) progFill.style.height = (progress * 100) + '%';
+      lastProgress = progress;
+    }
+  });
+
+  // ── Initialise first panel opacity (GSAP may have not touched it yet)
+  if (panels[0]) gsap.set(panels[0], { opacity: 1, y: 0 });
+})();
+
+// =========================================================
+// 9. COUNTDOWN TIMER (target: Q3 2026 — Sep 1)
+// =========================================================
+(function() {
+  const launch = new Date('2026-09-01T00:00:00');
+  const cdDays  = document.getElementById('cd-days');
+  const cdHours = document.getElementById('cd-hours');
+  const cdMins  = document.getElementById('cd-mins');
+  if (!cdDays) return;
+  const pad = n => String(n).padStart(2, '0');
+  function tick() {
+    const diff = launch - Date.now();
+    if (diff <= 0) { cdDays.textContent = cdHours.textContent = cdMins.textContent = '00'; return; }
+    cdDays.textContent  = pad(Math.floor(diff / 86400000));
+    cdHours.textContent = pad(Math.floor((diff % 86400000) / 3600000));
+    cdMins.textContent  = pad(Math.floor((diff % 3600000)  / 60000));
+  }
+  tick();
+  setInterval(tick, 60000);
+})();
+
+// =========================================================
+// 9. COUNTER ANIMATION
 // =========================================================
 function animateCounter(id, end, suffix, formatter) {
   const el = document.getElementById(id);
+  el.textContent = '0';
   let cur = 0;
   const inc = end / 90;
   const interval = setInterval(() => {
